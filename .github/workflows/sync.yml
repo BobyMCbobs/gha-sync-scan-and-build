@@ -14,7 +14,7 @@ permissions:
   actions: write
 
 jobs:
-  prep-jobs:
+  prepare:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
@@ -24,14 +24,13 @@ jobs:
       - id: set-matrix
         run: |
           MANIFEST="$(yq e . -o json config.yaml | jq .sync -M -c)"
-          echo "::set-output name=matrix::{\"include\":${MANIFEST}}"
-  do-sync:
+          echo "matrix={\"include\":${MANIFEST}}"
+  sync:
     runs-on: ubuntu-latest
     strategy:
-      matrix: ${{fromJson(needs.prep-jobs.outputs.matrix)}}
+      matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v3
-      - uses: mikefarah/yq@master
       - uses: actions/setup-go@v2
       - uses: imjasonh/setup-crane@v0.1
       - run: |
