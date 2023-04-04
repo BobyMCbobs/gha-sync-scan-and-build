@@ -1,7 +1,7 @@
 # NOTE refs
 # - https://github.com/aquasecurity/trivy-action#using-trivy-to-scan-your-private-registry
 
-name: sync
+name: scan
 
 on:
   schedule:
@@ -24,7 +24,7 @@ jobs:
         run: |
           MANIFEST="$(yq e . -o json config.yaml | jq .sync -M -c)"
           echo "::set-output name=matrix::{\"include\":${MANIFEST}}"
-  do-sync:
+  do-scan:
     runs-on: ubuntu-latest
     strategy:
       matrix: ${{fromJson(needs.prep-jobs.outputs.matrix)}}
