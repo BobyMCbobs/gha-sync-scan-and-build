@@ -26,7 +26,7 @@ jobs:
           (
             printf "matrix="
             yq e . -o json config.yaml | jq '{"includes": .sync}' -M -c
-          ) >> $GITHUB_OUTPUT
+          ) | tee -a $GITHUB_OUTPUT
   sync:
     runs-on: ubuntu-latest
     strategy:
