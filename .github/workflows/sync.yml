@@ -1,0 +1,38 @@
+# NOTE refs
+# - https://github.blog/changelog/2020-04-15-github-actions-new-workflow-features/#new-fromjson-method-in-expressions
+# - https://stackoverflow.com/questions/59977364/github-actions-how-use-strategy-matrix-with-script
+
+name: sync
+
+on:
+  schedule:
+    - cron: "0 0 * * MON"
+  workflow_dispatch: {}
+
+permissions:
+  packages: write
+  actions: write
+
+jobs:
+  prep-jobs:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: mikefarah/yq@master
+      - id: set-matrix
+        run: |
+          MANIFEST="$(yq e . -o json config.yaml | jq .sync -M -c)"
+          echo "::set-output name=matrix::{\"include\":${MANIFEST}}"
+  do-sync:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{fromJson(needs.prep-jobs.outputs.matrix)}}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: mikefarah/yq@master
+      - uses: actions/setup-go@v2
+      - uses: imjasonh/setup-crane@v0.1
+      - run: |
+          crane cp {{ matrix.source }} {{ matrix.destination }}
