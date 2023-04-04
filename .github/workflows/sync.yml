@@ -23,7 +23,8 @@ jobs:
       - uses: mikefarah/yq@master
       - id: set
         run: |
-          echo "matrix=$(yq e . -o json config.yaml | jq -r -c '.sync')" >> $GITHUB_OUTPUT
+          OUTPUT="matrix=$(yq e . -o json config.yaml | jq -r -c '.sync')"
+          echo "${OUTPUT}" | tee -a $GITHUB_OUTPUT
       - name: check output
         run: |
           jq . <<< '${{ steps.prepare.outputs.matrix }}'
