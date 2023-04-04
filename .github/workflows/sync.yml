@@ -23,8 +23,10 @@ jobs:
       - uses: mikefarah/yq@master
       - id: set-matrix
         run: |
-          printf "::set-output name=matrix::"
-          yq e . -o json config.yaml | jq '{"includes": .sync}' -M -c
+          (
+            printf "matrix="
+            yq e . -o json config.yaml | jq '{"includes": .sync}' -M -c
+          ) >> $GITHUB_OUTPUT
   sync:
     runs-on: ubuntu-latest
     strategy:
