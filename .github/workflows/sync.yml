@@ -24,7 +24,7 @@ jobs:
       - id: set-matrix
         run: |
           MANIFEST="$(yq e . -o json config.yaml | jq .sync -M -c)"
-          echo "matrix={\"include\":${MANIFEST}}"
+          echo "{\"include\":${MANIFEST}}"
   sync:
     runs-on: ubuntu-latest
     strategy:
