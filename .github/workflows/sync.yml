@@ -25,8 +25,11 @@ jobs:
         run: |
           (
             printf "matrix="
-            yq e . -o json config.yaml | jq '.sync' -M -c
+            yq e . -o json config.yaml | jq -r -c '.sync'
           ) | tee -a $GITHUB_OUTPUT
+      - name: check output
+        run: |
+          jq . <<< '${{ steps.prepare.outputs.matrix }}'
   sync:
     runs-on: ubuntu-latest
     strategy:
