@@ -25,12 +25,13 @@ jobs:
         run: |
           (
             printf "matrix="
-            yq e . -o json config.yaml | jq '{"include": .sync}' -M -c
+            yq e . -o json config.yaml | jq '.sync' -M -c
           ) | tee -a $GITHUB_OUTPUT
   sync:
     runs-on: ubuntu-latest
     strategy:
-      matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+      matrix:
+        include: ${{ fromJSON(needs.prepare.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v2
