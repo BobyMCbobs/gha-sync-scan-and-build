@@ -38,6 +38,10 @@ jobs:
       - uses: mikefarah/yq@master
       - uses: actions/setup-go@v4
       - uses: imjasonh/setup-crane@v0.1
+      - name: crane login
+        if: ${{ secrets.quay-io-password != null && secrets.quay-io-username != null }}
+        run: |
+          echo "${{ secrets.quay-io-password }}" | crane auth login --password-stdin quay.io ${{ secrets.quay-io-username }}
       - uses: chainguard-images/actions/apko-publish@main
         id: build
         name: build
