@@ -38,4 +38,4 @@ jobs:
       - uses: actions/setup-go@v2
       - uses: imjasonh/setup-crane@v0.1
       - run: |
-          crane cp {{ matrix.source }} {{ matrix.destination }}
+          crane cp ${{ matrix.source }} ${{ matrix.destination }}
