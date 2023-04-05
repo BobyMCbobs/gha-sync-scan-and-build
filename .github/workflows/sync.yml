@@ -37,17 +37,19 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v2
       - uses: imjasonh/setup-crane@v0.1
-      - name: copy
+      - name: get-digests
         env:
           SOURCE: ${{ fromJSON(toJSON(matrix)).source }}
           DESTINATION: ${{ fromJSON(toJSON(matrix)).destination }}
         run: |
           SOURCE_DIGEST="$(crane digest "${SOURCE}")"
           DESTINATION_DIGEST="$(crane digest "${DESTINATION}")"
-          echo "SOURCE: ${SOURCE_DIGEST}"
-          echo "DESTINATION: ${DESTINATION_DIGEST}"
-          if [ "${SOURCE_DIGEST}" = "${DESTINATION_DIGEST}" ]; then
-            exit 0
-          fi
-
+          echo "source=${SOURCE_DIGEST}" >> $GITHUB_OUTPUT
+          echo "destination=${DESTINATION_DIGEST}" >> $GITHUB_OUTPUT
+      - name: copy
+        if: steps.get-digests.outputs.source != steps.get-digests.outputs.destination
+        env:
+          SOURCE: ${{ fromJSON(toJSON(matrix)).source }}
+          DESTINATION: ${{ fromJSON(toJSON(matrix)).destination }}
+        run: |
           crane cp $SOURCE $DESTINATION
