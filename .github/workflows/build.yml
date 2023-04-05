@@ -116,5 +116,8 @@ jobs:
           echo "destination=${DESTINATION_DIGEST}" >> $GITHUB_OUTPUT
       - name: Sign image with a key
         if: ${{ endsWith(fromJSON(toJSON(matrix)).source, 'Dockerfile') == true }}
+        env:
+          COSIGN_EXPERIMENTAL: "true"
+          COSIGN_YES: "true"
         run: |
           cosign sign ${{ fromJSON(toJSON(matrix)).destination }}@${{ steps.get-digests.outputs.destination }} -y
