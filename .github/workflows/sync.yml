@@ -37,6 +37,16 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v2
       - uses: imjasonh/setup-crane@v0.1
+      - name: determine up-to-date
+        env:
+          SOURCE: ${{ fromJSON(toJSON(matrix)).source }}
+          DESTINATION: ${{ fromJSON(toJSON(matrix)).destination }}
+        run: |
+          SOURCE_DIGEST="$(crane digest "${SOURCE}")"
+          DESTINATION_DIGEST="$(crane digest "${DESTINATION}")"
+          if [ "${SOURCE_DIGEST}" = "${DESTINATION_DIGEST" ]; then
+            exit 0
+          fi
       - name: copy
         env:
           SOURCE: ${{ fromJSON(toJSON(matrix)).source }}
