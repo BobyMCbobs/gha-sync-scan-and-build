@@ -22,7 +22,7 @@ jobs:
       - uses: mikefarah/yq@master
       - id: set
         run: |
-          echo "matrix=$(jq '.sync as $sync | .build as $build | [{"destination": $sync[].destination}, {"destination": $build[].destination}]'  <<< "$(yq e . -o json config.yaml)")" >> $GITHUB_OUTPUT
+          echo "matrix=$(jq -r -c '.sync as $sync | .build as $build | [{"destination": $sync[].destination}, {"destination": $build[].destination}]'  <<< "$(yq e . -o json config.yaml)")" >> $GITHUB_OUTPUT
       - name: check output
         run: |
           jq . <<< '${{ steps.prepare.outputs.matrix }}'
