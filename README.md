@@ -1,6 +1,14 @@
 # gha-sync-scan-and-build
 Test GHA for image syncing, scanning and building
 
+# Purpose
+
+- sync to vendor images
+- build container images
+- run security scans again each destination image in configuration
+
+The repo is mostly concerned with base images or images used in build processes.
+
 # Features
 
 - declarative image sync management, given source and destination
@@ -9,6 +17,12 @@ Test GHA for image syncing, scanning and building
   - generated SBOMs
 - automatic security scanning for each image synced and built
 - fall back to Docker, if required
+
+# Layout
+
+- `config.yaml`: define configuration about runtime
+- `images/NAME/{images.yaml|Dockerfile,*}`: images to build configurations
+- `.github/workflows/{sync,scan,build}.yml`: lifecycle actions
 
 # Usage
 
@@ -85,7 +99,6 @@ archs:
 - x86_64
 ```
 
-
 ## Build with Docker
 
 Only use this if you have to. It is better to build with apko.
@@ -99,3 +112,13 @@ build:
       context: ./images/oldschool
 ```
 
+# Tooling
+
+| Name    | Description                                                                   | Links                                                              | Related/Alternatives                     |
+| crane   | an officially supported cli container registry tool from Google               | https://github.com/google/go-containerregistry/tree/main/cmd/crane | skopeo                                   |
+| yq      | a cli YAML parser                                                             | https://github.com/mikefarah/yq                                    | jq                                       |
+| cosign  | a cli container image artifact signing utility by Sigstore (Linux Foundation) | https://github.com/sigstore/cosign                                 | ...                                      |
+| melange | a cli Alpine APK package declarative builder supported by Chainguard          | https://github.com/chainguard-dev/melange                          | ...                                      |
+| apko    | a cli tool for declaratively building Alpine based container images           | https://github.com/chainguard-dev/apko                             | ko (https://ko.build - Linux Foundation) |
+| docker  | a container ecosystem, primarily for development                              | https://docker.io                                                  | podman                                   |
+| trivy   | a container image scanner                                                     | https://github.com/aquasecurity/trivy                              | clair                                    |
