@@ -38,7 +38,7 @@ jobs:
         include: ${{ fromJSON(needs.prepare.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-go@v2
+      - uses: actions/setup-go@v4
       - uses: imjasonh/setup-crane@v0.1
       - name: get-digests
         id: get-digests

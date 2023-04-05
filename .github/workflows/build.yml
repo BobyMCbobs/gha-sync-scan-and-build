@@ -36,7 +36,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: mikefarah/yq@master
-      - uses: actions/setup-go@v2
+      - uses: actions/setup-go@v4
       - uses: imjasonh/setup-crane@v0.1
       - name: build
         env:
