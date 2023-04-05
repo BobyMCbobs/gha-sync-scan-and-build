@@ -102,7 +102,6 @@ jobs:
           push: true
           tags: ${{ fromJSON(toJSON(matrix)).destination }}
           context: ${{ fromJSON(toJSON(matrix)).dockerOptions.context }}
-      # TODO add cosign for Docker build
       - name: get-digests
         if: ${{ endsWith(fromJSON(toJSON(matrix)).source, 'Dockerfile') == true }}
         id: get-digests

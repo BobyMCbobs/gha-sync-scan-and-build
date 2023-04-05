@@ -115,6 +115,7 @@ build:
 # Tooling
 
 | Name    | Description                                                                   | Links                                                              | Related/Alternatives                     |
+|---------|-------------------------------------------------------------------------------|--------------------------------------------------------------------|------------------------------------------|
 | crane   | an officially supported cli container registry tool from Google               | https://github.com/google/go-containerregistry/tree/main/cmd/crane | skopeo                                   |
 | yq      | a cli YAML parser                                                             | https://github.com/mikefarah/yq                                    | jq                                       |
 | cosign  | a cli container image artifact signing utility by Sigstore (Linux Foundation) | https://github.com/sigstore/cosign                                 | ...                                      |
