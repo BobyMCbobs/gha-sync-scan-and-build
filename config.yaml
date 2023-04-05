@@ -19,3 +19,7 @@ build:
       - ./images/coolthing/melange.yaml
   - source: ./images/something/image.yaml
     destination: ghcr.io/bobymcbobs/gha-sync-scan-and-build/something:latest
+  - source: ./images/oldschool/Dockerfile
+    destination: ghcr.io/bobymcbobs/gha-sync-scan-and-build/oldschool:latest
+    dockerOptions:
+      context: ./images/oldschool
