@@ -6,6 +6,7 @@ contents:
     - alpine-base
     - busybox
     - ca-certificates-bundle
+    - nginx@local
 
 entrypoint:
   command: /bin/sh -c
