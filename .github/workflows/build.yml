@@ -11,7 +11,9 @@ on:
   workflow_dispatch: {}
 
 permissions:
+  id-token: write
   packages: write
+  contents: write
 
 jobs:
   prepare:
@@ -38,6 +40,12 @@ jobs:
       - uses: mikefarah/yq@master
       - uses: actions/setup-go@v4
       - uses: sigstore/cosign-installer@main
+      - name: Generate snapshot date
+        id: snapshot-date
+        run: |
+          echo name=date::$(date -u +%Y%m%d) >> $GITHUB_OUTPUT
+          echo name=epoch::$(date -u +%s) >> $GITHUB_OUTPUT
+        shell: bash
       - uses: chainguard-dev/actions/melange-build@main
         if: ${{ fromJSON(toJSON(matrix)).melangeConfig != '' }}
         with:
@@ -51,3 +59,5 @@ jobs:
         with:
           tag: ${{ fromJSON(toJSON(matrix)).destination }}
           config: ${{ fromJSON(toJSON(matrix)).source }}
+          source-date-epoch: ${{ steps.snapshot-date.outputs.epoch }}
+          keyring-append: /github/workspace/melange.rsa.pub
