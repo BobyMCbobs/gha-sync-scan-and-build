@@ -40,10 +40,6 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v4
       - uses: imjasonh/setup-crane@v0.1
-      - name: crane login
-        if: ${{ secrets.QUAYIO_PASSWORD != null && secrets.QUAYIO_USERNAME != null }}
-        run: |
-          echo "${{ secrets.quay-io-password }}" | crane auth login --password-stdin quay.io ${{ secrets.quay-io-username }}
       - name: get-digests
         id: get-digests
         env:

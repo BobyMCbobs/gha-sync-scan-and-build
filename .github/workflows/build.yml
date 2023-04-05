@@ -45,10 +45,6 @@ jobs:
           sign-with-temporary-key: true
           empty-workspace: true
       - uses: imjasonh/setup-crane@v0.1
-      - name: crane login
-        if: ${{ secrets.QUAYIO_PASSWORD != null && secrets.QUAYIO_USERNAME != null }}
-        run: |
-          echo "${{ secrets.quay-io-password }}" | crane auth login --password-stdin quay.io ${{ secrets.quay-io-username }}
       - uses: chainguard-images/actions/apko-publish@main
         id: build
         name: build
