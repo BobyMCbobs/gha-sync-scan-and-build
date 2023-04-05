@@ -46,7 +46,7 @@ jobs:
           DESTINATION_DIGEST="$(crane digest "${DESTINATION}")"
           echo "SOURCE: ${SOURCE_DIGEST}"
           echo "DESTINATION: ${DESTINATION_DIGEST}"
-          if [ "${SOURCE_DIGEST}" -eq "${DESTINATION_DIGEST}" ]; then
+          if [ "${SOURCE_DIGEST}" = "${DESTINATION_DIGEST}" ]; then
             exit 0
           fi
 
