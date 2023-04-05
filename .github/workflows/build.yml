@@ -38,16 +38,9 @@ jobs:
       - uses: mikefarah/yq@master
       - uses: actions/setup-go@v4
       - uses: imjasonh/setup-crane@v0.1
-      - name: build
-        env:
-          SOURCE: ${{ fromJSON(toJSON(matrix)).source }}
-          DESTINATION: ${{ fromJSON(toJSON(matrix)).destination }}
-          APKO_OPTIONS: --sbom=false --arch=x86_64
-        run: |
-          docker run -v "$PWD":/work cgr.dev/chainguard/apko build $APKO_OPTIONS $SOURCE $DESTINATION image.tar
-      - name: push
-        env:
-          SOURCE: ${{ fromJSON(toJSON(matrix)).source }}
-          DESTINATION: ${{ fromJSON(toJSON(matrix)).destination }}
-        run: |
-          crane push image.tar $DESTINATION
+      - uses: chainguard-dev/actions/apko-publish@main
+        id: build
+        name: build
+        with:
+          tag: ${{ fromJSON(toJSON(matrix)).destination }}
+          config: ${{ fromJSON(toJSON(matrix)).source }}
