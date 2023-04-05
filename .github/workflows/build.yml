@@ -84,6 +84,7 @@ jobs:
         if: ${{ endsWith(fromJSON(toJSON(matrix)).source, 'Dockerfile') == true }}
         uses: docker/login-action@v2
         with:
+          # TODO use Quay.io https://github.com/docker/login-action#quayio
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
