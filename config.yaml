@@ -9,6 +9,8 @@ sync:
     destination: ghcr.io/bobymcbobs/gha-sync-scan-and-build/kube-proxy:v1.26.2
   - source: alpine:latest
     destination: ghcr.io/bobymcbobs/gha-sync-scan-and-build/alpine:latest
+  - source: centos:7
+    destination: ghcr.io/bobymcbobs/gha-sync-scan-and-build/centos:7
 
 build:
   - source: ./images/coolthing/image.yaml
