@@ -38,7 +38,7 @@ jobs:
       - uses: mikefarah/yq@master
       - uses: actions/setup-go@v4
       - uses: imjasonh/setup-crane@v0.1
-      - uses: chainguard-dev/actions/apko-publish@main
+      - uses: chainguard-images/actions/apko-publish@main
         id: build
         name: build
         with:
