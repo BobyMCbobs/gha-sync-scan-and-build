@@ -42,7 +42,7 @@ jobs:
         env:
           SOURCE: ${{ fromJSON(toJSON(matrix)).source }}
           DESTINATION: ${{ fromJSON(toJSON(matrix)).destination }}
-          APKO_OPTIONS: --sbom=false
+          APKO_OPTIONS: --sbom=false --arch=x86_64
         run: |
           docker run -v "$PWD":/work cgr.dev/chainguard/apko build $APKO_OPTIONS $SOURCE $DESTINATION image.tar
       - name: push
