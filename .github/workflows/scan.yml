@@ -34,6 +34,11 @@ jobs:
         include: ${{ fromJSON(needs.prepare.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v3
+      - uses: imjasonh/setup-crane@v0.1
+      - name: crane login
+        if: ${{ secrets.quay-io-password != null && secrets.quay-io-username != null }}
+        run: |
+          echo "${{ secrets.quay-io-password }}" | crane auth login --password-stdin quay.io ${{ secrets.quay-io-username }}
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
