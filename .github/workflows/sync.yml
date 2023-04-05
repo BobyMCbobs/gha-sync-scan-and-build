@@ -47,7 +47,7 @@ jobs:
           echo "source=${SOURCE_DIGEST}" >> $GITHUB_OUTPUT
           echo "destination=${DESTINATION_DIGEST}" >> $GITHUB_OUTPUT
       - name: copy
-        if: steps.get-digests.outputs.source != steps.get-digests.outputs.destination || steps.get-digests.outputs.destination != ""
+        if: steps.get-digests.outputs.source != steps.get-digests.outputs.destination || steps.get-digests.outputs.destination == ''
         env:
           SOURCE: ${{ fromJSON(toJSON(matrix)).source }}
           DESTINATION: ${{ fromJSON(toJSON(matrix)).destination }}
