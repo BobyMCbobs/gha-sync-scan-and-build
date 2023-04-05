@@ -41,7 +41,7 @@ jobs:
       - uses: chainguard-dev/actions/melange-build@main
         if: ${{ fromJSON(toJSON(matrix)).melangeConfig != '' }}
         with:
-          config: fromJSON(toJSON(matrix)).melangeConfig
+          config: ${{ fromJSON(toJSON(matrix)).melangeConfig }}
           sign-with-temporary-key: true
           empty-workspace: true
       - uses: imjasonh/setup-crane@v0.1
