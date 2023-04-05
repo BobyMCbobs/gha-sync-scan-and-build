@@ -103,3 +103,18 @@ jobs:
           tags: ${{ fromJSON(toJSON(matrix)).destination }}
           context: ${{ fromJSON(toJSON(matrix)).dockerOptions.context }}
       # TODO add cosign for Docker build
+      - name: get-digests
+        if: ${{ endsWith(fromJSON(toJSON(matrix)).source, 'Dockerfile') == true }}
+        id: get-digests
+        env:
+          DESTINATION: ${{ fromJSON(toJSON(matrix)).destination }}
+        run: |
+          DESTINATION_DIGEST="$(crane digest "${DESTINATION}" || true)"
+          (
+            echo "${SOURCE_DIGEST} ${DESTINATION_DIGEST}"
+          ) | column -t
+          echo "destination=${DESTINATION_DIGEST}" >> $GITHUB_OUTPUT
+      - name: Sign image with a key
+        if: ${{ endsWith(fromJSON(toJSON(matrix)).source, 'Dockerfile') == true }}
+        run: |
+          cosign sign ${{ fromJSON(toJSON(matrix)).destination }}@${{ steps.get-digests.outputs.destination }} -y
