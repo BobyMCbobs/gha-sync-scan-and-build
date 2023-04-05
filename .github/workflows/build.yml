@@ -47,16 +47,16 @@ jobs:
           echo name=epoch::$(date -u +%s) >> $GITHUB_OUTPUT
         shell: bash
       - uses: chainguard-dev/actions/melange-build@main
-        if: ${{ fromJSON(toJSON(matrix)).melangeConfig != '' }}
+        if: ${{ fromJSON(toJSON(matrix)).melangeConfigs != null }}
         with:
-          config: ${{ fromJSON(toJSON(matrix)).melangeConfig }}
+          multi-config: ${{ join(fromJSON(toJSON(matrix)).melangeConfigs, ',') }}
           sign-with-temporary-key: true
           empty-workspace: true
       - uses: imjasonh/setup-crane@v0.1
       - uses: chainguard-images/actions/apko-publish@main
         id: build-with-signing-key
         name: build-with-signing-key
-        if: ${{ fromJSON(toJSON(matrix)).melangeConfig != '' }}
+        if: ${{ fromJSON(toJSON(matrix)).melangeConfig != null }}
         with:
           tag: ${{ fromJSON(toJSON(matrix)).destination }}
           config: ${{ fromJSON(toJSON(matrix)).source }}
@@ -64,7 +64,7 @@ jobs:
           keyring-append: /github/workspace/melange.rsa.pub
       # TODO fix temp hack to conditionally pass keyring-append to apko
       - uses: chainguard-images/actions/apko-publish@main
-        if: ${{ fromJSON(toJSON(matrix)).melangeConfig == '' }}
+        if: ${{ fromJSON(toJSON(matrix)).melangeConfig == null }}
         id: build
         name: build
         with:

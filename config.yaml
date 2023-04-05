@@ -15,6 +15,7 @@ sync:
 build:
   - source: ./images/coolthing/image.yaml
     destination: ghcr.io/bobymcbobs/gha-sync-scan-and-build/coolthing:latest
-    melangeConfig: ./images/coolthing/melange.yaml
+    melangeConfigs:
+      - ./images/coolthing/melange.yaml
   - source: ./images/something/image.yaml
     destination: ghcr.io/bobymcbobs/gha-sync-scan-and-build/something:latest
