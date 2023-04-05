@@ -40,23 +40,25 @@ jobs:
       - uses: mikefarah/yq@master
       - uses: actions/setup-go@v4
       - uses: sigstore/cosign-installer@main
+      - uses: imjasonh/setup-crane@v0.1
+      # apko + Melange build
       - name: Generate snapshot date
+        if: ${{ endsWith(fromJSON(toJSON(matrix)).source, "image.yaml") == true }}
         id: snapshot-date
         run: |
           echo name=date::$(date -u +%Y%m%d) >> $GITHUB_OUTPUT
           echo name=epoch::$(date -u +%s) >> $GITHUB_OUTPUT
         shell: bash
       - uses: chainguard-dev/actions/melange-build@main
-        if: ${{ fromJSON(toJSON(matrix)).melangeConfigs != null }}
+        if: ${{ fromJSON(toJSON(matrix)).melangeConfigs != null && endsWith(fromJSON(toJSON(matrix)).source, "image.yaml") == true }}
         with:
           multi-config: ${{ join(fromJSON(toJSON(matrix)).melangeConfigs, ',') }}
           sign-with-temporary-key: true
           empty-workspace: true
-      - uses: imjasonh/setup-crane@v0.1
       - uses: chainguard-images/actions/apko-publish@main
         id: build-with-signing-key
         name: build-with-signing-key
-        if: ${{ fromJSON(toJSON(matrix)).melangeConfigs != null }}
+        if: ${{ fromJSON(toJSON(matrix)).melangeConfigs != null && endsWith(fromJSON(toJSON(matrix)).source, "image.yaml") == true }}
         with:
           tag: ${{ fromJSON(toJSON(matrix)).destination }}
           config: ${{ fromJSON(toJSON(matrix)).source }}
@@ -64,10 +66,32 @@ jobs:
           keyring-append: /github/workspace/melange.rsa.pub
       # TODO fix temp hack to conditionally pass keyring-append to apko
       - uses: chainguard-images/actions/apko-publish@main
-        if: ${{ fromJSON(toJSON(matrix)).melangeConfigs == null }}
+        if: ${{ fromJSON(toJSON(matrix)).melangeConfigs == null && endsWith(fromJSON(toJSON(matrix)).source, "image.yaml") == true }}
         id: build
         name: build
         with:
           tag: ${{ fromJSON(toJSON(matrix)).destination }}
           config: ${{ fromJSON(toJSON(matrix)).source }}
           source-date-epoch: ${{ steps.snapshot-date.outputs.epoch }}
+      # Docker build
+      - name: Set up QEMU
+        if: ${{ endsWith(fromJSON(toJSON(matrix)).source, "Dockerfile") == true }}
+        uses: docker/setup-qemu-action@v2
+      - name: Set up Docker Buildx
+        if: ${{ endsWith(fromJSON(toJSON(matrix)).source, "Dockerfile") == true }}
+        uses: docker/setup-buildx-action@v2
+      - name: Login to Docker Hub
+        if: ${{ endsWith(fromJSON(toJSON(matrix)).source, "Dockerfile") == true }}
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push
+        if: ${{ endsWith(fromJSON(toJSON(matrix)).source, "Dockerfile") == true }}
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          tags: ${{ fromJSON(toJSON(matrix)).destination }}
+          context: ${{ fromJSON(toJSON(matrix)).dockerOptions.context }}
+      # TODO add cosign for Docker build
