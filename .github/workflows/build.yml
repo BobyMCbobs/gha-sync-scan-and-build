@@ -41,6 +41,10 @@ jobs:
       - uses: actions/setup-go@v4
       - uses: sigstore/cosign-installer@main
       - uses: imjasonh/setup-crane@v0.1
+      - name: quay crane login
+        if: ${{ secrets.QUAY_ROBOT_TOKEN != null && secrets.QUAY_USERNAME != null }}
+        run: |
+          echo "${{ secrets.QUAY_ROBOT_TOKEN }}" | crane auth login --password-stdin quay.io ${{ secrets.QUAY_USERNAME }}
       # apko + Melange build
       - name: Generate snapshot date
         if: ${{ endsWith(fromJSON(toJSON(matrix)).source, 'image.yaml') == true }}

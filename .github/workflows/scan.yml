@@ -35,6 +35,10 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: imjasonh/setup-crane@v0.1
+      - name: quay crane login
+        if: ${{ secrets.QUAY_ROBOT_TOKEN != null && secrets.QUAY_USERNAME != null }}
+        run: |
+          echo "${{ secrets.QUAY_ROBOT_TOKEN }}" | crane auth login --password-stdin quay.io ${{ secrets.QUAY_USERNAME }}
       - name: get-digests
         id: get-digests
         env:
