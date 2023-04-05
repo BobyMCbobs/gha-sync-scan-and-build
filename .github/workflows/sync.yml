@@ -5,6 +5,7 @@
 name: sync
 
 on:
+  push: {}
   schedule:
     - cron: "0 0 * * MON"
   workflow_dispatch: {}
