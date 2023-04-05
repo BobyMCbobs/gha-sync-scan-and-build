@@ -9,8 +9,7 @@ on:
   workflow_dispatch: {}
 
 permissions:
-  packages: write
-  actions: write
+  security-events: write
 
 jobs:
   prepare:
