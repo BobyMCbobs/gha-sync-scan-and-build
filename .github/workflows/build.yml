@@ -42,9 +42,12 @@ jobs:
       - uses: sigstore/cosign-installer@main
       - uses: imjasonh/setup-crane@v0.1
       - name: quay crane login
-        if: ${{ secrets.QUAY_ROBOT_TOKEN != null && secrets.QUAY_USERNAME != null }}
+        env:
+          quay-robot-token: ${{ secrets.QUAY_ROBOT_TOKEN }}
+          quay-username: ${{ secrets.QUAY_USERNAME }}
+        if: ${{ env.quay-robot-token != null && env.quay-username != null }}
         run: |
-          echo "${{ secrets.QUAY_ROBOT_TOKEN }}" | crane auth login --password-stdin quay.io ${{ secrets.QUAY_USERNAME }}
+          echo "${{ env.quay-robot-token }}" | crane auth login --password-stdin quay.io ${{ env.quay-username }}
       # apko + Melange build
       - name: Generate snapshot date
         if: ${{ endsWith(fromJSON(toJSON(matrix)).source, 'image.yaml') == true }}
