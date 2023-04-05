@@ -6,4 +6,5 @@ Test GHA for image syncing, scanning and building
 - declarative image sync management, given source and destination
 - declarative apko build management
   - with Melange integration
+  - generated SBOMs
 - automatic security scanning for each image synced and built
