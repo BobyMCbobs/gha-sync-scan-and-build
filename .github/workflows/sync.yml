@@ -23,12 +23,12 @@ jobs:
       - uses: mikefarah/yq@master
       - id: set
         run: |
-          OUTPUT="matrix=$(yq e . -o json config.yaml | jq -r -c '.sync')"
-          echo "${OUTPUT}" | tee -a $GITHUB_OUTPUT
+          echo "matrix=$(jq '.sync' -r -c <<< "$(yq e . -o json config.yaml)" >> $GITHUB_OUTPUT
       - name: check output
         run: |
           jq . <<< '${{ steps.prepare.outputs.matrix }}'
   sync:
+    needs: prepare
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -37,5 +37,9 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v2
       - uses: imjasonh/setup-crane@v0.1
-      - run: |
-          crane cp ${{ matrix.source }} ${{ matrix.destination }}
+      - name: copy
+        env:
+          SOURCE: ${{ fromJSON(toJSON(matrix)).source }}
+          DESTINATION: ${{ fromJSON(toJSON(matrix)).destination }}
+        run: |
+          crane cp $SOURCE $DESTINATION
