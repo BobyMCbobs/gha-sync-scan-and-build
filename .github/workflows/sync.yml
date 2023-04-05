@@ -41,6 +41,7 @@ jobs:
       - uses: actions/setup-go@v2
       - uses: imjasonh/setup-crane@v0.1
       - name: get-digests
+        id: get-digests
         env:
           SOURCE: ${{ fromJSON(toJSON(matrix)).source }}
           DESTINATION: ${{ fromJSON(toJSON(matrix)).destination }}
@@ -54,7 +55,7 @@ jobs:
           echo "source=${SOURCE_DIGEST}" >> $GITHUB_OUTPUT
           echo "destination=${DESTINATION_DIGEST}" >> $GITHUB_OUTPUT
       - name: copy
-        if: ${{ github.jobs.sync.outputs.source != github.jobs.sync.outputs.destination || github.jobs.sync.outputs.destination == null }}
+        if: ${{ steps.get-digests.outputs.source != steps.get-digests.outputs.destination || steps.get-digests.outputs.destination == null }}
         env:
           SOURCE: ${{ fromJSON(toJSON(matrix)).source }}
           DESTINATION: ${{ fromJSON(toJSON(matrix)).destination }}
