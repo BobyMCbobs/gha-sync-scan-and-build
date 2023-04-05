@@ -5,8 +5,8 @@ sync:
     destination: ghcr.io/bobymcbobs/gha-sync-scan-and-build/pause:3.6
   - source: cgr.dev/chainguard/go:latest
     destination: ghcr.io/bobymcbobs/gha-sync-scan-and-build/go:latest
-  - source: registry.k8s.io/kube-proxy:v1.16.6
-    destination: ghcr.io/bobymcbobs/kube-proxy:v1.16.6
+  - source: registry.k8s.io/kube-proxy:v1.16.8
+    destination: ghcr.io/bobymcbobs/kube-proxy:v1.16.8
 
 build:
   - source: ./images/coolthing/image.yaml
