@@ -13,27 +13,31 @@ permissions:
   actions: write
 
 jobs:
-  prep-jobs:
+  prepare:
     runs-on: ubuntu-latest
     outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
+      matrix: ${{ steps.set.outputs.matrix }}
     steps:
       - uses: actions/checkout@v3
       - uses: mikefarah/yq@master
-      - id: set-matrix
+      - id: set
         run: |
-          MANIFEST="$(yq e . -o json config.yaml | jq .sync -M -c)"
-          echo "::set-output name=matrix::{\"include\":${MANIFEST}}"
-  do-scan:
+          echo "matrix=$(jq '.sync as $sync | .build as $build | [{"destination": $sync[].destination}, {"destination": $build[].destination}]'  <<< "$(yq e . -o json config.yaml)")" >> $GITHUB_OUTPUT
+      - name: check output
+        run: |
+          jq . <<< '${{ steps.prepare.outputs.matrix }}'
+  scan:
+    needs: prepare
     runs-on: ubuntu-latest
     strategy:
-      matrix: ${{fromJson(needs.prep-jobs.outputs.matrix)}}
+      matrix:
+        include: ${{ fromJSON(needs.prepare.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v3
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: '{{ matrix.destination }}'
+          image-ref: '${{ fromJSON(toJSON(matrix)).destination }}'
           format: 'table'
           exit-code: '1'
           ignore-unfixed: true
