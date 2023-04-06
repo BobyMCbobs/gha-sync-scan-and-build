@@ -38,8 +38,8 @@ jobs:
         include: ${{ fromJSON(needs.prepare.outputs.matrix) }}
     steps:
       - run: |
-          echo 'typeIsApko: ${{ fromJSON(needs.prepare.outputs.matrix).typeIsApko }}'
-          echo 'typeIsDocker: ${{ fromJSON(needs.prepare.outputs.matrix).typeIsDocker }}'
+          echo 'typeIsApko: ${{ endsWith(fromJSON(toJSON(steps.set.outputs.matrix)).source, 'image.yaml') }}'
+          echo 'typeIsDocker: ${{ endsWith(fromJSON(toJSON(steps.set.outputs.matrix)).source, 'Dockerfile') }}'
           echo 'matrix'
           echo '${{ needs.prepare.outputs.matrix }}'
 
