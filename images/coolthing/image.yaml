@@ -4,8 +4,7 @@ contents:
     - https://dl-cdn.alpinelinux.org/alpine/v3.17/community
     - '@local /github/workspace/packages'
   packages:
-    - alpine-base
-    - busybox
+    - alpine-baselayout
     - ca-certificates-bundle
     - hello@local
 
