@@ -74,14 +74,14 @@ jobs:
           echo "${{ env.quay-robot-token }}" | crane auth login --password-stdin quay.io ${{ env.quay-username }}
       # apko + Melange build
       - name: Generate snapshot date
-        if: ${{ steps.determine-type.outputs.typeIsApko == true }}
+        if: ${{ steps.determine-type.outputs.typeIsApko == 'true' }}
         id: snapshot-date
         run: |
           echo name=date::$(date -u +%Y%m%d) >> $GITHUB_OUTPUT
           echo name=epoch::$(date -u +%s) >> $GITHUB_OUTPUT
         shell: bash
       - uses: chainguard-dev/actions/melange-build@main
-        if: ${{ fromJSON(toJSON(matrix)).melangeConfigs != null && steps.determine-type.outputs.typeIsApko == true }}
+        if: ${{ fromJSON(toJSON(matrix)).melangeConfigs != null && steps.determine-type.outputs.typeIsApko == 'true' }}
         with:
           multi-config: ${{ join(fromJSON(toJSON(matrix)).melangeConfigs, ',') }}
           sign-with-temporary-key: true
@@ -89,7 +89,7 @@ jobs:
       - uses: chainguard-images/actions/apko-publish@main
         id: build-with-signing-key
         name: build-with-signing-key
-        if: ${{ fromJSON(toJSON(matrix)).melangeConfigs != null && steps.determine-type.outputs.typeIsApko == true }}
+        if: ${{ fromJSON(toJSON(matrix)).melangeConfigs != null && steps.determine-type.outputs.typeIsApko == 'true' }}
         with:
           tag: ${{ fromJSON(toJSON(matrix)).destination }}
           config: ${{ fromJSON(toJSON(matrix)).source }}
@@ -97,7 +97,7 @@ jobs:
           keyring-append: /github/workspace/melange.rsa.pub
       # TODO fix temp hack to conditionally pass keyring-append to apko
       - uses: chainguard-images/actions/apko-publish@main
-        if: ${{ fromJSON(toJSON(matrix)).melangeConfigs == null && steps.determine-type.outputs.typeIsApko == true }}
+        if: ${{ fromJSON(toJSON(matrix)).melangeConfigs == null && steps.determine-type.outputs.typeIsApko == 'true' }}
         id: build
         name: build
         with:
@@ -105,24 +105,24 @@ jobs:
           config: ${{ fromJSON(toJSON(matrix)).source }}
           source-date-epoch: ${{ steps.snapshot-date.outputs.epoch }}
       - name: Set up QEMU
-        if: ${{ steps.determine-type.outputs.typeIsDocker == true }}
+        if: ${{ steps.determine-type.outputs.typeIsDocker == 'true' }}
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
-        if: ${{ steps.determine-type.outputs.typeIsDocker == true }}
+        if: ${{ steps.determine-type.outputs.typeIsDocker == 'true' }}
         uses: docker/setup-buildx-action@v2
       - name: Login to Quay.io
         uses: docker/login-action@v2
         env:
           quay-robot-token: ${{ secrets.QUAY_ROBOT_TOKEN }}
           quay-username: ${{ secrets.QUAY_USERNAME }}
-        if: ${{ env.quay-robot-token != null && env.quay-username != null && steps.determine-type.outputs.typeIsDocker == true  }}
+        if: ${{ env.quay-robot-token != null && env.quay-username != null && steps.determine-type.outputs.typeIsDocker == 'true'  }}
         with:
           # TODO use Quay.io https://github.com/docker/login-action#quayio
           registry: quay.io
           username: ${{ secrets.QUAY_USERNAME }}
           password: ${{ secrets.QUAY_ROBOT_TOKEN }}
       - name: Login to Docker Hub
-        if: ${{ steps.determine-type.outputs.typeIsDocker == true }}
+        if: ${{ steps.determine-type.outputs.typeIsDocker == 'true' }}
         uses: docker/login-action@v2
         with:
           # TODO use Quay.io https://github.com/docker/login-action#quayio
@@ -130,14 +130,14 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push
-        if: ${{ steps.determine-type.outputs.typeIsDocker == true }}
+        if: ${{ steps.determine-type.outputs.typeIsDocker == 'true' }}
         uses: docker/build-push-action@v4
         with:
           push: true
           tags: ${{ fromJSON(toJSON(matrix)).destination }}
           context: ${{ fromJSON(toJSON(matrix)).dockerOptions.context }}
       - name: get-digests
-        if: ${{ steps.determine-type.outputs.typeIsDocker == true }}
+        if: ${{ steps.determine-type.outputs.typeIsDocker == 'true' }}
         id: get-digests
         env:
           DESTINATION: ${{ fromJSON(toJSON(matrix)).destination }}
@@ -148,7 +148,7 @@ jobs:
           ) | column -t
           echo "destination=${DESTINATION_DIGEST}" >> $GITHUB_OUTPUT
       - name: Sign image with a key
-        if: ${{ steps.determine-type.outputs.typeIsDocker == true }}
+        if: ${{ steps.determine-type.outputs.typeIsDocker == 'true' }}
         env:
           COSIGN_EXPERIMENTAL: "true"
           COSIGN_YES: "true"
