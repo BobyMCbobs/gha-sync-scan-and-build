@@ -33,6 +33,7 @@ jobs:
           jq . <<< '${{ steps.prepare.outputs.matrix }}'
 
   debug:
+    needs: prepare
     runs-on: ubuntu-latest
     steps:
       - run: |
