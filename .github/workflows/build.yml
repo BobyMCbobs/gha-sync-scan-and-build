@@ -30,25 +30,10 @@ jobs:
         run: |
           jq . <<< '${{ steps.prepare.outputs.matrix }}'
 
-  debug:
-    needs: prepare
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        include: ${{ fromJSON(needs.prepare.outputs.matrix) }}
-    steps:
-      - name: debug
-        env:
-          NEEDS_CONTEXT: ${{ toJSON(needs) }}
-        run: |
-          echo 'typeIsApko: ${{ endsWith(fromJSON(toJSON(matrix)).source, 'image.yaml') }}'
-          echo 'typeIsDocker: ${{ endsWith(fromJSON(toJSON(matrix)).source, 'Dockerfile') }}'
-          echo 'matrix'
-          echo '${{ needs.prepare.outputs.matrix }}'
-          echo "${NEEDS_CONTEXT}"
-
   build:
     needs: prepare
+    # TODO split to apko and docker build, use if conditional to call each, using matrix values
+    #      currently, this isn't working due to the context inside of if not having access to matrix (from strategy.matrix)
     if: fromJSON(needs.prepare.outputs.matrix) != null
     runs-on: ubuntu-latest
     strategy:
@@ -110,7 +95,7 @@ jobs:
       - name: Set up Docker Buildx
         if: ${{ steps.determine-type.outputs.typeIsDocker == 'true' }}
         uses: docker/setup-buildx-action@v2
-      - name: Login to Quay.io
+      - name: Login to quay.io
         uses: docker/login-action@v2
         env:
           quay-robot-token: ${{ secrets.QUAY_ROBOT_TOKEN }}
@@ -121,7 +106,7 @@ jobs:
           registry: quay.io
           username: ${{ secrets.QUAY_USERNAME }}
           password: ${{ secrets.QUAY_ROBOT_TOKEN }}
-      - name: Login to Docker Hub
+      - name: Login to ghcr.io
         if: ${{ steps.determine-type.outputs.typeIsDocker == 'true' }}
         uses: docker/login-action@v2
         with:
