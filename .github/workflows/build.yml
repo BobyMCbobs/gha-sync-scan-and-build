@@ -20,8 +20,8 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set.outputs.matrix }}
-      typeIsApko: ${{ endsWith(fromJSON(toJSON(step.set.outputs.matrix)).source, 'image.yaml') }}
-      typeIsDocker: ${{ endsWith(fromJSON(toJSON(step.set.outputs.matrix)).source, 'Dockerfile') }}
+      typeIsApko: ${{ endsWith(fromJSON(toJSON(steps.set.outputs.matrix)).source, 'image.yaml') }}
+      typeIsDocker: ${{ endsWith(fromJSON(toJSON(steps.set.outputs.matrix)).source, 'Dockerfile') }}
     steps:
       - uses: actions/checkout@v3
       - uses: mikefarah/yq@master
