@@ -20,6 +20,8 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set.outputs.matrix }}
+      typeIsApko: ${{ endsWith(fromJSON(toJSON(step.set.outputs.matrix)).source, 'image.yaml') }}
+      typeIsDocker: ${{ endsWith(fromJSON(toJSON(step.set.outputs.matrix)).source, 'Dockerfile') }}
     steps:
       - uses: actions/checkout@v3
       - uses: mikefarah/yq@master
@@ -32,7 +34,7 @@ jobs:
 
   build:
     needs: prepare
-    if: ${{ fromJSON(needs.prepare.outputs.matrix) != null && endsWith(fromJSON(toJSON(needs.prepare.outputs.matrix)).source, 'image.yaml') == true }}
+    if: fromJSON(needs.prepare.outputs.matrix) != null && typeIsApko == 'true'
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -84,7 +86,7 @@ jobs:
 
   build-with-docker:
     needs: prepare
-    if: ${{ fromJSON(needs.prepare.outputs.matrix) != null && endsWith(fromJSON(toJSON(needs.prepare.outputs.matrix)).source, 'Dockerfile') == true }}
+    if: fromJSON(needs.prepare.outputs.matrix) != null && typeIsDocker == 'true'
     runs-on: ubuntu-latest
     strategy:
       matrix:
