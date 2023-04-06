@@ -122,7 +122,7 @@ jobs:
           tags: ${{ fromJSON(toJSON(matrix)).destination }}
           context: ${{ fromJSON(toJSON(matrix)).dockerOptions.context }}
           labels: |
-            org.opencontainers.image.revision=${{ github.ref }}
+            org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.source=${{ github.repositoryUrl }}
       - name: get-digests
         if: ${{ steps.determine-type.outputs.typeIsDocker == 'true' }}
