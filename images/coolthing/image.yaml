@@ -10,7 +10,7 @@ contents:
     - hello@local
 
 entrypoint:
-  command: /bin/sh -c
+  command: /usr/bin/hello
 
 archs:
 - x86_64
