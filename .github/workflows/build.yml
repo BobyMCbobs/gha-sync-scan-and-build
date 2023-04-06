@@ -34,7 +34,7 @@ jobs:
 
   build:
     needs: prepare
-    if: fromJSON(needs.prepare.outputs.matrix) != null && needs.prepare.outputs.typeIsApko == 'true'
+    if: fromJSON(needs.prepare.outputs.matrix) != null && needs.prepare.outputs.typeIsApko == true
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -86,7 +86,7 @@ jobs:
 
   build-with-docker:
     needs: prepare
-    if: fromJSON(needs.prepare.outputs.matrix) != null && needs.prepare.outputs.typeIsDocker == 'true'
+    if: fromJSON(needs.prepare.outputs.matrix) != null && needs.prepare.outputs.typeIsDocker == true
     runs-on: ubuntu-latest
     strategy:
       matrix:
