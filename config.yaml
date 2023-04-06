@@ -13,10 +13,10 @@ sync:
     destination: ghcr.io/bobymcbobs/gha-sync-scan-and-build/centos:7
 
 build:
-  - source: ./images/coolthing/image.yaml
-    destination: ghcr.io/bobymcbobs/gha-sync-scan-and-build/coolthing:latest
+  - source: ./images/hello/image.yaml
+    destination: ghcr.io/bobymcbobs/gha-sync-scan-and-build/hello:latest
     melangeConfigs:
-      - ./images/coolthing/pkg-hello.yaml
+      - ./images/hello/pkg-hello.yaml
   - source: ./images/something/image.yaml
     destination: ghcr.io/bobymcbobs/gha-sync-scan-and-build/something:latest
   - source: ./images/oldschool/Dockerfile
