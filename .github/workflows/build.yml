@@ -31,6 +31,7 @@ jobs:
           jq . <<< '${{ steps.prepare.outputs.matrix }}'
   build:
     needs: prepare
+    if: ${{ fromJSON(needs.prepare.outputs.matrix) != null }}
     runs-on: ubuntu-latest
     strategy:
       matrix:

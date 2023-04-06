@@ -28,6 +28,7 @@ jobs:
         run: |
           jq . <<< '${{ steps.prepare.outputs.matrix }}'
   sync:
+    if: ${{ fromJSON(needs.prepare.outputs.matrix) != null }}
     needs: prepare
     runs-on: ubuntu-latest
     outputs:

@@ -27,6 +27,7 @@ jobs:
         run: |
           jq . <<< '${{ steps.prepare.outputs.matrix }}'
   scan:
+    if: ${{ fromJSON(needs.prepare.outputs.matrix) != null }}
     needs: prepare
     runs-on: ubuntu-latest
     strategy:
