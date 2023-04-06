@@ -32,6 +32,15 @@ jobs:
         run: |
           jq . <<< '${{ steps.prepare.outputs.matrix }}'
 
+  debug:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo 'typeIsApko: ${{ needs.prepare.outputs.typeIsApko }}'
+          echo 'typeIsDocker: ${{ needs.prepare.outputs.typeIsDocker }}'
+          echo 'matrix'
+          echo '${{ needs.prepare.outputs.matrix }}'
+
   build:
     needs: prepare
     if: fromJSON(needs.prepare.outputs.matrix) != null && needs.prepare.outputs.typeIsApko == true
