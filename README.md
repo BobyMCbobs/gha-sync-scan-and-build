@@ -1,11 +1,13 @@
 # gha-sync-scan-and-build
-Test GHA for image syncing, scanning and building
+
+> Test GHA for image syncing, scanning and building
 
 # Purpose
 
 - sync to vendor images
 - build container images
 - run security scans again each destination image in configuration
+- exercise capabilities
 
 The repo is mostly concerned with base images or images used in build processes.
 
@@ -17,6 +19,7 @@ The repo is mostly concerned with base images or images used in build processes.
   - generated SBOMs
 - automatic security scanning for each image synced and built
 - fall back to Docker, if required
+- automatic trigger of builds, sync and scan every week
 
 # Layout
 
