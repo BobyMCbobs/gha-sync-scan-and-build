@@ -23,3 +23,5 @@ build:
     destination: ghcr.io/bobymcbobs/gha-sync-scan-and-build/oldschool:latest
     dockerOptions:
       context: ./images/oldschool
+    sbom:
+      artifactName: oldschool
