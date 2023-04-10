@@ -89,6 +89,7 @@ jobs:
           tag: ${{ fromJSON(toJSON(matrix)).destination }}
           config: ${{ fromJSON(toJSON(matrix)).source }}
           source-date-epoch: ${{ steps.snapshot-date.outputs.epoch }}
+      # docker build
       - name: Set up QEMU
         if: ${{ steps.determine-type.outputs.typeIsDocker == 'true' }}
         uses: docker/setup-qemu-action@v2
@@ -142,3 +143,6 @@ jobs:
           COSIGN_YES: "true"
         run: |
           cosign sign ${{ fromJSON(toJSON(matrix)).destination }}@${{ steps.get-digests.outputs.destination }} -y
+      - uses: anchore/sbom-action@v0
+        with:
+          image: ${{ fromJSON(toJSON(matrix)).destination }}@${{ steps.get-digests.outputs.destination }}
