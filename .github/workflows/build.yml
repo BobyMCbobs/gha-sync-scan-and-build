@@ -144,5 +144,6 @@ jobs:
         run: |
           cosign sign ${{ fromJSON(toJSON(matrix)).destination }}@${{ steps.get-digests.outputs.destination }} -y
       - uses: anchore/sbom-action@v0
+        if: ${{ steps.determine-type.outputs.typeIsDocker == 'true' }}
         with:
           image: ${{ fromJSON(toJSON(matrix)).destination }}@${{ steps.get-digests.outputs.destination }}
