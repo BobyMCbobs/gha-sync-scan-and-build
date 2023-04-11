@@ -98,11 +98,10 @@ jobs:
           artifact-name: sbom-spdx.json
           output-file: /tmp/sbom-spdx.json
       - name: publish sbom blob as blob
-        if: ${{ steps.get-digests.outputs.source != steps.get-digests.outputs.destination || steps.get-digests .outputs.destination == null || fromJSON(toJSON(matrix)).always == true }}
+        if: ${{ steps.determine-type.outputs.typeIsDocker == 'true' }}
         env:
-          ARTIFACT_NAME: ${{ fromJSON(toJSON(matrix)).sbom.artifactName }}
-          DESTINATION: ${{ fromJSON(toJSON(matrix)).destination }}
+          COSIGN_YES: "true"
+          COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
+          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
         run: |
-          DESTINATION_REPO="$(echo ${{ fromJSON(toJSON(matrix)).destination }} | cut -d ':' -f1)"
-          DIGEST="$(echo ${{ steps.get-digests.outputs.destination }} | cut -d ':' -f2)"
-          cosign upload blob -f /tmp/sbom-spdx.json $DESTINATION_REPO:sha256-$DIGEST.sbom
+          cosign attest --predicate /tmp/sbom-spdx.json --key env://COSIGN_PRIVATE_KEY ${{ fromJSON(toJSON(matrix)).destination }}@${{ steps.get-digests.outputs.destination }} -y
