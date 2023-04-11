@@ -1,22 +1,16 @@
 sync:
   - source: alpine:3.17.3
     destination: ghcr.io/bobymcbobs/gha-sync-scan-and-build/alpine:3.17.3
-    always: true
   - source: registry.k8s.io/pause:3.6
     destination: ghcr.io/bobymcbobs/gha-sync-scan-and-build/pause:3.6
-    always: true
   - source: cgr.dev/chainguard/go:latest
     destination: ghcr.io/bobymcbobs/gha-sync-scan-and-build/go:latest
-    always: true
   - source: registry.k8s.io/kube-proxy:v1.26.2
     destination: ghcr.io/bobymcbobs/gha-sync-scan-and-build/kube-proxy:v1.26.2
-    always: true
   - source: alpine:latest
     destination: ghcr.io/bobymcbobs/gha-sync-scan-and-build/alpine:latest
-    always: true
   - source: centos:7
     destination: ghcr.io/bobymcbobs/gha-sync-scan-and-build/centos:7
-    always: true
 
 build:
   - source: ./images/hello/image.yaml
