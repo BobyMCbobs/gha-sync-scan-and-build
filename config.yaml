@@ -1,6 +1,6 @@
 sync:
-  - source: alpine:3.16
-    destination: ghcr.io/bobymcbobs/gha-sync-scan-and-build/alpine:3.16
+  - source: alpine:3.17
+    destination: ghcr.io/bobymcbobs/gha-sync-scan-and-build/alpine:3.17
   - source: registry.k8s.io/pause:3.6
     destination: ghcr.io/bobymcbobs/gha-sync-scan-and-build/pause:3.6
   - source: cgr.dev/chainguard/go:latest
