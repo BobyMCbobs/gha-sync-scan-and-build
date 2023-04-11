@@ -40,6 +40,7 @@ the structure of the repo is as follows:
 2. set the image push GitHub secrets of `QUAY_USERNAME` and `QUAY_ROBOT_TOKEN`
 3. generate a signing keypair with `cosign generate-key-pair`
 4. set signing key and password as GitHub secrets with `COSIGN_PRIVATE_KEY` and `COSIGN_PASSWORD` respectively
+5. commit the _cosign.pub_ public key to the repo's root
 
 # Usage
 
@@ -53,7 +54,7 @@ sync:
     destination: ghcr.io/somecoolorg/images/alpine:latest
 ```
 
-Images will only be synced if the digest of the source and destination don't match
+Images will only be synced if the digest of the source and destination don't match or if the `sync[].always` key is set to `true`
 
 ## Build with apko
 
