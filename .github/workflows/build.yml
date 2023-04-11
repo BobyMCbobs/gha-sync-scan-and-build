@@ -154,5 +154,6 @@ jobs:
           ARTIFACT_NAME: ${{ fromJSON(toJSON(matrix)).sbom.artifactName }}
           DESTINATION: ${{ fromJSON(toJSON(matrix)).destination }}
         run: |
+          DESTINATION_REPO="$(echo ${{ fromJSON(toJSON(matrix)).destination }} | cut -d ':' -f1)"
           DIGEST="$(echo ${{ steps.get-digests.outputs.destination }} | cut -d ':' -f2)"
-          cosign upload blob -f /tmp/$ARTIFACT_NAME-spdx.json ${{ fromJSON(toJSON(matrix)).destination }}:sha256-$DIGEST.sbom
+          cosign upload blob -f /tmp/$ARTIFACT_NAME-spdx.json $DESTINATION_REPO:sha256-$DIGEST.sbom
