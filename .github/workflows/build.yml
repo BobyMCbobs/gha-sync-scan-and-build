@@ -147,3 +147,12 @@ jobs:
         with:
           image: ${{ fromJSON(toJSON(matrix)).destination }}@${{ steps.get-digests.outputs.destination }}
           artifact-name: ${{ fromJSON(toJSON(matrix)).sbom.artifactName }}-spdx.json
+          output-file: /tmp/${{ fromJSON(toJSON(matrix)).sbom.artifactName }}-spdx.json
+      - name: publish sbom blob as blob
+        if: ${{ steps.determine-type.outputs.typeIsDocker == 'true' }}
+        env:
+          ARTIFACT_NAME: ${{ fromJSON(toJSON(matrix)).sbom.artifactName }}
+          DESTINATION: ${{ fromJSON(toJSON(matrix)).destination }}
+        run: |
+          DESTINATION_REPO="$(echo $DESTINATION | cut -d ':' -f1)"
+          cosign upload blob -f /tmp/$ARTIFACT_NAME-spdx.json $DESTINATION_REPO:sha256-$(sha256sum /tmp/$ARTIFACT_NAME-spdx.json | awk '{print $1}').sbom
