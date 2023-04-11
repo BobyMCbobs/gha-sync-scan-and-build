@@ -115,6 +115,14 @@ build:
       context: ./images/oldschool
 ```
 
+# Verifying images
+
+Images are able to be verified through
+
+```shell
+cosign verify --key cosign.pub IMAGE_REF
+```
+
 # Tooling
 
 | Name    | Description                                                                   | Links                                                              | Related/Alternatives                     |
