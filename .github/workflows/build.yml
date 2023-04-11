@@ -126,7 +126,6 @@ jobs:
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.source=${{ github.repositoryUrl }}
       - name: get-digests
-        if: ${{ steps.determine-type.outputs.typeIsDocker == 'true' }}
         id: get-digests
         env:
           DESTINATION: ${{ fromJSON(toJSON(matrix)).destination }}
@@ -137,7 +136,6 @@ jobs:
           ) | column -t
           echo "destination=${DESTINATION_DIGEST}" >> $GITHUB_OUTPUT
       - name: Sign image with a key
-        if: ${{ steps.determine-type.outputs.typeIsDocker == 'true' }}
         env:
           COSIGN_EXPERIMENTAL: "true"
           COSIGN_YES: "true"
