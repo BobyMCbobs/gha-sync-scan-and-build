@@ -99,7 +99,7 @@ build:
 ```
 
 with each melange config being a path to the package to build.
-An entry in the apko YAML must be set `contentx.repositories[last index]` to `@local /github/workspace/packages`, then packages can be installed with `NAME@local`; like this apko configuration
+An entry in the apko YAML must be set `contents.repositories[last index]` to `@local /github/workspace/packages`, then packages can be installed with `NAME@local`; like this apko configuration
 
 ```yaml
 contents:
