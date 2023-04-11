@@ -146,6 +146,7 @@ jobs:
         if: ${{ steps.determine-type.outputs.typeIsDocker == 'true' }}
         with:
           image: ${{ fromJSON(toJSON(matrix)).destination }}@${{ steps.get-digests.outputs.destination }}
+          artifact-name: sbom-spdx.json
           output-file: /tmp/sbom-spdx.json
       - name: publish sbom blob as blob
         if: ${{ steps.determine-type.outputs.typeIsDocker == 'true' }}
