@@ -71,9 +71,11 @@ jobs:
         run: |
           crane cp $SOURCE $DESTINATION
       - name: Sign image with a key
-        # if: ${{ steps.get-digests.outputs.source != steps.get-digests.outputs.destination || steps.get-digests .outputs.destination == null }}
+        if: ${{ steps.get-digests.outputs.source != steps.get-digests.outputs.destination || steps.get-digests .outputs.destination == null }}
         env:
           COSIGN_EXPERIMENTAL: "true"
           COSIGN_YES: "true"
+          COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
+          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
         run: |
-          cosign sign ${{ fromJSON(toJSON(matrix)).destination }}@${{ steps.get-digests.outputs.destination }} -y
+          cosign sign --key env://COSIGN_PRIVATE_KEY ${{ fromJSON(toJSON(matrix)).destination }}@${{ steps.get-digests.outputs.destination }} -y
