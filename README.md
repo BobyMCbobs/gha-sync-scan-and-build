@@ -7,7 +7,8 @@
 - sync to vendor images
 - build container images
 - run security scans again each destination image in configuration
-- exercise capabilities
+- separate implementation from the data
+  - implementation can be swapped out underneath, if need be and maintain the function
 
 The repo is mostly concerned with base images or images used in build processes.
 
@@ -15,23 +16,37 @@ The repo is mostly concerned with base images or images used in build processes.
 
 - declarative image sync management, given source and destination
 - declarative apko build management
-  - with Melange integration
+  - with Melange (Alpine APK building) integration
   - generated SBOMs
+  - container image signing
 - automatic security scanning for each image synced and built
-- fall back to Docker, if required
+- multiple build modes
+  - apko
+  - apko + melange
+  - docker (fallback)
 - automatic trigger of builds, sync and scan every week
 
 # Layout
 
+the structure of the repo is as follows:
+
 - `config.yaml`: define configuration about runtime
 - `images/NAME/{images.yaml|Dockerfile,*}`: images to build configurations
 - `.github/workflows/{sync,scan,build}.yml`: lifecycle actions
+
+# Set up
+
+1. specify images for syncing and building in the respective _sync_ and _build_ fields
+2. set the image push GitHub secrets of `QUAY_USERNAME` and `QUAY_ROBOT_TOKEN`
+3. generate a signing keypair with `cosign generate-key-pair`
+4. set signing key and password as GitHub secrets with `COSIGN_PRIVATE_KEY` and `COSIGN_PASSWORD` respectively
 
 # Usage
 
 ## Sync an image
 
 Images are synced by specifying source and destinations like this
+
 ```yaml
 sync:
   - source: docker.io/alpine:latest
@@ -43,6 +58,7 @@ Images will only be synced if the digest of the source and destination don't mat
 ## Build with apko
 
 Images for building are specified with the source being an apko formatted YAML file and an image destination
+
 ```yaml
 build:
   - source: ./images/acoolthing/image.yaml
@@ -72,6 +88,7 @@ archs:
 ## Build with apko and Melange
 
 Specify a source, destination and as many melangeConfigs
+
 ```yaml
 build:
   - source: ./images/coolthing/image.yaml
@@ -107,6 +124,7 @@ archs:
 Only use this if you have to. It is better to build with apko.
 
 Images can be built with Docker like this
+
 ```yaml
 build:
   - source: ./images/oldschool/Dockerfile
@@ -134,3 +152,32 @@ cosign verify --key cosign.pub IMAGE_REF
 | apko    | a cli tool for declaratively building Alpine based container images           | https://github.com/chainguard-dev/apko                             | ko (https://ko.build - Linux Foundation) |
 | docker  | a container ecosystem, primarily for development                              | https://docker.io                                                  | podman                                   |
 | trivy   | a container image scanner                                                     | https://github.com/aquasecurity/trivy                              | clair                                    |
+
+# Patterns for discussion
+
+> semi-related topics
+
+- require signed container images for use in production
+  - https://docs.sigstore.dev/cosign/sign
+  - https://kyverno.io/policies/other/verify_image
+  - https://docs.sigstore.dev/policy-controller/overview
+- use distroless container images as base images
+  - don't ship package managers into production
+  - https://github.com/chainguard-images
+- run containers as non-root users
+  - limit workload privilege
+  - https://github.com/chainguard-dev/apko/blob/main/docs/apko_file.md#accounts-top-level-element
+  - set `pod.spec.containers.securityContext.runAsUser`; https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+  - `docker run --user 10000 ...` https://docs.docker.com/engine/reference/commandline/run
+  - https://docs.aws.amazon.com/config/latest/developerguide/ecs-task-definition-nonroot-user.html
+- use a static tag with digest instead of latest
+  - ensure that you are using the version of the image that you expect
+  - don't use e.g: `alpine:latest`, instead use an immutable image reference like `alpine:3.17.3@sha256:b6ca290b6b4cdcca5b3db3ffa338ee0285c11744b4a6abaa9627746ee3291d8d` to ensure an expected version is always used
+  - version full digests can be manually resolved for consumption using `crane digest alpine:3.17.3` (for example)
+  - when using systems like Knative, these digests are automatically resolved
+- deploy containers with a read-only root filesystem
+  - https://docs.aws.amazon.com/config/latest/developerguide/ecs-containers-readonly-access.html
+  - `docker run --read-only ...`; https://docs.docker.com/engine/reference/commandline/run
+  - set `pod.spec.containers.securityContext.readOnlyRootFilesystem` to `true`; https://kubernetes.io/docs/tasks/configure-pod-container/security-context
+- build Go apps with [ko](https://ko.build)
+  - https://ko.build/advanced/migrating-from-dockerfile
