@@ -156,4 +156,4 @@ jobs:
         run: |
           DESTINATION_REPO="$(echo ${{ fromJSON(toJSON(matrix)).destination }} | cut -d ':' -f1)"
           DIGEST="$(echo ${{ steps.get-digests.outputs.destination }} | cut -d ':' -f2)"
-          cosign upload blob -f /tmp/$ARTIFACT_NAME-spdx.json $DESTINATION_REPO:sha256-$DIGEST.sbom
+          cosign upload blob -f /tmp/sbom-spdx.json $DESTINATION_REPO:sha256-$DIGEST.sbom
