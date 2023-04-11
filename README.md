@@ -153,6 +153,7 @@ cosign verify --key cosign.pub IMAGE_REF
 | apko    | a cli tool for declaratively building Alpine based container images           | https://github.com/chainguard-dev/apko                             | ko (https://ko.build - Linux Foundation) |
 | docker  | a container ecosystem, primarily for development                              | https://docker.io                                                  | podman                                   |
 | trivy   | a container image scanner                                                     | https://github.com/aquasecurity/trivy                              | clair                                    |
+| syft    | a cli tool to generate sboms based on container images and filesystems        | https://github.com/anchore/syft                                    |                                          |
 
 # Patterns for discussion
 
@@ -182,3 +183,7 @@ cosign verify --key cosign.pub IMAGE_REF
   - set `pod.spec.containers.securityContext.readOnlyRootFilesystem` to `true`; https://kubernetes.io/docs/tasks/configure-pod-container/security-context
 - build Go apps with [ko](https://ko.build)
   - https://ko.build/advanced/migrating-from-dockerfile
+  
+# Good reads
+
+- https://docs.sigstore.dev/history
