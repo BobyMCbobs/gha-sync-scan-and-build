@@ -41,6 +41,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v4
       - uses: imjasonh/setup-crane@v0.1
+      - uses: sigstore/cosign-installer@main
       - name: quay crane login
         env:
           quay-robot-token: ${{ secrets.QUAY_ROBOT_TOKEN }}
