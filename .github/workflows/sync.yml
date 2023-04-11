@@ -69,3 +69,10 @@ jobs:
           DESTINATION: ${{ fromJSON(toJSON(matrix)).destination }}
         run: |
           crane cp $SOURCE $DESTINATION
+      - name: Sign image with a key
+        # if: ${{ steps.get-digests.outputs.source != steps.get-digests.outputs.destination || steps.get-digests .outputs.destination == null }}
+        env:
+          COSIGN_EXPERIMENTAL: "true"
+          COSIGN_YES: "true"
+        run: |
+          cosign sign ${{ fromJSON(toJSON(matrix)).destination }}@${{ steps.get-digests.outputs.destination }} -y
