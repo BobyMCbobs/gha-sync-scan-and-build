@@ -50,6 +50,7 @@ jobs:
         run: |
           echo "${{ env.quay-robot-token }}" | crane auth login --password-stdin quay.io ${{ env.quay-username }}
       - name: get-digests
+        if: ${{ fromJSON(toJSON(matrix)).always != true }}
         id: get-digests
         env:
           SOURCE: ${{ fromJSON(toJSON(matrix)).source }}
@@ -64,13 +65,14 @@ jobs:
           echo "source=${SOURCE_DIGEST}" >> $GITHUB_OUTPUT
           echo "destination=${DESTINATION_DIGEST}" >> $GITHUB_OUTPUT
       - name: copy
-        if: ${{ steps.get-digests.outputs.source != steps.get-digests.outputs.destination || steps.get-digests .outputs.destination == null }}
+        if: ${{ steps.get-digests.outputs.source != steps.get-digests.outputs.destination || steps.get-digests .outputs.destination == null || fromJSON(toJSON(matrix)).always == true }}
         env:
           SOURCE: ${{ fromJSON(toJSON(matrix)).source }}
           DESTINATION: ${{ fromJSON(toJSON(matrix)).destination }}
         run: |
           crane cp $SOURCE $DESTINATION
       - name: get-synced-digests
+        if: ${{ steps.get-digests.outputs.source != steps.get-digests.outputs.destination || steps.get-digests .outputs.destination == null || fromJSON(toJSON(matrix)).always == true }}
         id: get-synced-digests
         env:
           DESTINATION: ${{ fromJSON(toJSON(matrix)).destination }}
@@ -81,7 +83,7 @@ jobs:
           ) | column -t
           echo "destination=${DESTINATION_DIGEST}" >> $GITHUB_OUTPUT
       - name: Sign image with a key
-        if: ${{ steps.get-digests.outputs.source != steps.get-digests.outputs.destination || steps.get-digests .outputs.destination == null }}
+        if: ${{ steps.get-digests.outputs.source != steps.get-digests.outputs.destination || steps.get-digests .outputs.destination == null || fromJSON(toJSON(matrix)).always == true }}
         env:
           COSIGN_EXPERIMENTAL: "true"
           COSIGN_YES: "true"
