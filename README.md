@@ -134,7 +134,24 @@ build:
       context: ./images/oldschool
 ```
 
-# Verifying images
+# Tips
+
+## Tagging built images
+
+determine the digest of the image, for example given the image is `ghcr.io/somecoolorg/images/hello:latest`
+``` shell
+crane digest ghcr.io/somecoolorg/images/hello:latest
+```
+
+the digest might be `sha256:a61743b19423a01827ba68a1ec81a09d04f84bc69848303905ecbc73824fb88b`.
+
+add a new sync image to the sync key like
+```yaml
+  - source: ghcr.io/somecoolorg/images/hello@sha256:a61743b19423a01827ba68a1ec81a09d04f84bc69848303905ecbc73824fb88b
+    destination: ghcr.io/somecoolorg/images/hello:some-cool-tag
+```
+
+## Verifying images
 
 Images are able to be verified through
 
