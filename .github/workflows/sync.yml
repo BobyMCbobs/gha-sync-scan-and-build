@@ -65,14 +65,14 @@ jobs:
           echo "source=${SOURCE_DIGEST}" >> $GITHUB_OUTPUT
           echo "destination=${DESTINATION_DIGEST}" >> $GITHUB_OUTPUT
       - name: copy
-        if: ${{ steps.get-digests.outputs.source != steps.get-digests.outputs.destination || steps.get-digests .outputs.destination == null || fromJSON(toJSON(matrix)).always == true }}
+        if: ${{ steps.get-digests.outputs.source != steps.get-digests.outputs.destination || steps.get-digests.outputs.destination == null || fromJSON(toJSON(matrix)).always == true }}
         env:
           SOURCE: ${{ fromJSON(toJSON(matrix)).source }}
           DESTINATION: ${{ fromJSON(toJSON(matrix)).destination }}
         run: |
           crane cp $SOURCE $DESTINATION
       - name: get-synced-digests
-        if: ${{ steps.get-digests.outputs.source != steps.get-digests.outputs.destination || steps.get-digests .outputs.destination == null || fromJSON(toJSON(matrix)).always == true }}
+        if: ${{ steps.get-digests.outputs.source != steps.get-digests.outputs.destination || steps.get-digests.outputs.destination == null || fromJSON(toJSON(matrix)).always == true }}
         id: get-synced-digests
         env:
           DESTINATION: ${{ fromJSON(toJSON(matrix)).destination }}
@@ -92,13 +92,13 @@ jobs:
         run: |
           cosign sign --key env://COSIGN_PRIVATE_KEY ${{ fromJSON(toJSON(matrix)).destination }}@${{ steps.get-synced-digests.outputs.destination }} -y
       - uses: anchore/sbom-action@v0
-        if: ${{ steps.get-digests.outputs.source != steps.get-digests.outputs.destination || steps.get-digests .outputs.destination == null || fromJSON(toJSON(matrix)).always == true }}
+        if: ${{ steps.get-digests.outputs.source != steps.get-digests.outputs.destination || steps.get-digests.outputs.destination == null || fromJSON(toJSON(matrix)).always == true }}
         with:
           image: ${{ fromJSON(toJSON(matrix)).destination }}@${{ steps.get-synced-digests.outputs.destination }}
           artifact-name: sbom-spdx.json
           output-file: /tmp/sbom-spdx.json
       - name: publish sbom blob as blob
-        if: ${{ steps.determine-type.outputs.typeIsDocker == 'true' }}
+        if: ${{ steps.get-digests.outputs.source != steps.get-digests.outputs.destination || steps.get-digests.outputs.destination == null || fromJSON(toJSON(matrix)).always == true }}
         env:
           COSIGN_YES: "true"
           COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
