@@ -83,7 +83,6 @@ jobs:
           HAS_SIGNATURES="$(cosign tree ${DESTINATION}@${DESTINATION_DIGEST} 2>&1 | grep -q 'Signatures for an image tag' && echo true || echo false)"
           echo "destination=${DESTINATION_DIGEST}" >> $GITHUB_OUTPUT
           echo "has-signatures=${HAS_SIGNATURES}" >> $GITHUB_OUTPUT
-      # TODO sign image if no signature found
       - name: Sign image with a key
         if: ${{ steps.get-digests.outputs.source != steps.get-digests.outputs.destination || steps.get-digests .outputs.destination == null || fromJSON(toJSON(matrix)).always == true || steps.get-synced-digests.outputs.has-signatures != 'true' }}
         env:
@@ -93,14 +92,12 @@ jobs:
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
         run: |
           cosign sign --key env://COSIGN_PRIVATE_KEY ${{ fromJSON(toJSON(matrix)).destination }}@${{ steps.get-synced-digests.outputs.destination }} -y
-      # TODO generate SBOM if none found
       - uses: anchore/sbom-action@v0
         if: ${{ steps.get-digests.outputs.source != steps.get-digests.outputs.destination || steps.get-digests.outputs.destination == null || fromJSON(toJSON(matrix)).always == true || steps.get-synced-digests.outputs.has-signatures != 'true' }}
         with:
           image: ${{ fromJSON(toJSON(matrix)).destination }}@${{ steps.get-synced-digests.outputs.destination }}
           artifact-name: sbom-spdx.json
           output-file: /tmp/sbom-spdx.json
-      # TODO attest sbom if none found
       - name: publish sbom blob as blob
         if: ${{ steps.get-digests.outputs.source != steps.get-digests.outputs.destination || steps.get-digests.outputs.destination == null || fromJSON(toJSON(matrix)).always == true || steps.get-synced-digests.outputs.has-signatures != 'true' }}
         env:
