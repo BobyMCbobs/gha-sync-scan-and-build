@@ -81,9 +81,12 @@ jobs:
           (
             echo "${SOURCE_DIGEST} ${DESTINATION_DIGEST}"
           ) | column -t
+          HAS_SIGNATURES="$(cosign verify --key cosign.pub ${DESTINATION} 2>&1 >/dev/null && echo true)"
           echo "destination=${DESTINATION_DIGEST}" >> $GITHUB_OUTPUT
+          echo "has-signatures=${HAS_SIGNATURES}" >> $GITHUB_OUTPUT
+      # TODO sign image if no signature found
       - name: Sign image with a key
-        if: ${{ steps.get-digests.outputs.source != steps.get-digests.outputs.destination || steps.get-digests .outputs.destination == null || fromJSON(toJSON(matrix)).always == true }}
+        if: ${{ steps.get-digests.outputs.source != steps.get-digests.outputs.destination || steps.get-digests .outputs.destination == null || fromJSON(toJSON(matrix)).always == true || steps.get-synced-digests.outputs.has-signatures != 'true' }}
         env:
           COSIGN_EXPERIMENTAL: "true"
           COSIGN_YES: "true"
@@ -91,17 +94,19 @@ jobs:
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
         run: |
           cosign sign --key env://COSIGN_PRIVATE_KEY ${{ fromJSON(toJSON(matrix)).destination }}@${{ steps.get-synced-digests.outputs.destination }} -y
+      # TODO generate SBOM if none found
       - uses: anchore/sbom-action@v0
-        if: ${{ steps.get-digests.outputs.source != steps.get-digests.outputs.destination || steps.get-digests.outputs.destination == null || fromJSON(toJSON(matrix)).always == true }}
+        if: ${{ steps.get-digests.outputs.source != steps.get-digests.outputs.destination || steps.get-digests.outputs.destination == null || fromJSON(toJSON(matrix)).always == true || steps.get-synced-digests.outputs.has-signatures != 'true' }}
         with:
           image: ${{ fromJSON(toJSON(matrix)).destination }}@${{ steps.get-synced-digests.outputs.destination }}
           artifact-name: sbom-spdx.json
           output-file: /tmp/sbom-spdx.json
+      # TODO attest sbom if none found
       - name: publish sbom blob as blob
-        if: ${{ steps.get-digests.outputs.source != steps.get-digests.outputs.destination || steps.get-digests.outputs.destination == null || fromJSON(toJSON(matrix)).always == true }}
+        if: ${{ steps.get-digests.outputs.source != steps.get-digests.outputs.destination || steps.get-digests.outputs.destination == null || fromJSON(toJSON(matrix)).always == true || steps.get-synced-digests.outputs.has-signatures != 'true' }}
         env:
           COSIGN_YES: "true"
           COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
         run: |
-          cosign attest --predicate /tmp/sbom-spdx.json --key env://COSIGN_PRIVATE_KEY ${{ fromJSON(toJSON(matrix)).destination }}@${{ steps.get-digests.outputs.destination }} -y
+          cosign attest --predicate /tmp/sbom-spdx.json --key env://COSIGN_PRIVATE_KEY ${{ fromJSON(toJSON(matrix)).destination }}@${{ steps.get-synced-digests.outputs.destination }} -y
