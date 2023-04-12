@@ -80,7 +80,7 @@ jobs:
           (
             echo "${SOURCE_DIGEST} ${DESTINATION_DIGEST}"
           ) | column -t
-          HAS_SIGNATURES="$(cosign tree ${DESTINATION}@${DESTINATION_DIGEST} 2>&1 | grep -q sig && echo true || echo false)"
+          HAS_SIGNATURES="$(cosign tree ${DESTINATION}@${DESTINATION_DIGEST} 2>&1 | grep -q 'Signatures for an image tag' && echo true || echo false)"
           echo "destination=${DESTINATION_DIGEST}" >> $GITHUB_OUTPUT
           echo "has-signatures=${HAS_SIGNATURES}" >> $GITHUB_OUTPUT
       # TODO sign image if no signature found
