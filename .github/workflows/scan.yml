@@ -50,7 +50,8 @@ jobs:
         run: |
           DESTINATION_DIGEST="$(crane digest "${DESTINATION}" || true)"
           (
-            echo "SOURCE-DIGEST DESTINATION-DIGEST"
+            echo "DESTINATION-DIGEST"
+            echo "$DESTINATION_DIGEST"
           ) | column -t
           echo "destination=${DESTINATION_DIGEST}" >> $GITHUB_OUTPUT
       - name: Run Trivy vulnerability scanner
