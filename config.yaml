@@ -11,6 +11,8 @@ sync:
     destination: ghcr.io/bobymcbobs/gha-sync-scan-and-build/alpine:latest
   - source: centos:7
     destination: ghcr.io/bobymcbobs/gha-sync-scan-and-build/centos:7
+  - source: ghcr.io/bobymcbobs/gha-sync-scan-and-build/hello@sha256:a61743b19423a01827ba68a1ec81a09d04f84bc69848303905ecbc73824fb88b
+    destination: ghcr.io/bobymcbobs/gha-sync-scan-and-build/hello:cool
 
 build:
   - source: ./images/hello/image.yaml
