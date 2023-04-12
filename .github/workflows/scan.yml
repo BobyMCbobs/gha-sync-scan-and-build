@@ -46,19 +46,15 @@ jobs:
       - name: get-digests
         id: get-digests
         env:
-          SOURCE: ${{ fromJSON(toJSON(matrix)).source }}
           DESTINATION: ${{ fromJSON(toJSON(matrix)).destination }}
         run: |
-          SOURCE_DIGEST="$(crane digest "${SOURCE}" || true)"
           DESTINATION_DIGEST="$(crane digest "${DESTINATION}" || true)"
           (
             echo "SOURCE-DIGEST DESTINATION-DIGEST"
-            echo "${SOURCE_DIGEST} ${DESTINATION_DIGEST}"
           ) | column -t
-          echo "source=${SOURCE_DIGEST}" >> $GITHUB_OUTPUT
           echo "destination=${DESTINATION_DIGEST}" >> $GITHUB_OUTPUT
       - name: Run Trivy vulnerability scanner
-        if: ${{ steps.get-digests .outputs.destination != null }}
+        if: ${{ steps.get-digests.outputs.destination != null }}
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: '${{ fromJSON(toJSON(matrix)).destination }}'
