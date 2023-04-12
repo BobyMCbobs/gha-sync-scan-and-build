@@ -80,7 +80,7 @@ jobs:
           (
             echo "${SOURCE_DIGEST} ${DESTINATION_DIGEST}"
           ) | column -t
-          HAS_SIGNATURES="$(cosign verify --key cosign.pub ${DESTINATION} 2>&1 >/dev/null && echo true)"
+          HAS_SIGNATURES="$(cosign verify --key cosign.pub ${DESTINATION}@${DESTINATION_DIGEST} 2>&1 >/dev/null && echo true || echo false)"
           echo "destination=${DESTINATION_DIGEST}" >> $GITHUB_OUTPUT
           echo "has-signatures=${HAS_SIGNATURES}" >> $GITHUB_OUTPUT
       # TODO sign image if no signature found
