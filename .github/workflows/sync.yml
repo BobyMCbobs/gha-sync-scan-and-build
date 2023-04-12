@@ -72,7 +72,6 @@ jobs:
         run: |
           crane cp $SOURCE $DESTINATION
       - name: get-synced-digests
-        if: ${{ steps.get-digests.outputs.source != steps.get-digests.outputs.destination || steps.get-digests.outputs.destination == null || fromJSON(toJSON(matrix)).always == true }}
         id: get-synced-digests
         env:
           DESTINATION: ${{ fromJSON(toJSON(matrix)).destination }}
