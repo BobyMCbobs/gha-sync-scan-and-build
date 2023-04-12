@@ -159,6 +159,12 @@ Images are able to be verified through
 cosign verify --key cosign.pub IMAGE_REF
 ```
 
+## See the tree of attached signatures and SBOMs
+
+```shell
+cosign tree IMAGE_REF
+```
+
 # Tooling
 
 | Name    | Description                                                                   | Links                                                              | Related/Alternatives                     |
