@@ -148,8 +148,11 @@ jobs:
           image: ${{ fromJSON(toJSON(matrix)).destination }}@${{ steps.get-digests.outputs.destination }}
           artifact-name: sbom-spdx.json
           output-file: /tmp/sbom-spdx.json
+      - name: download unsigned sbom
+        if: ${{ steps.determine-type.outputs.typeIsDocker != 'true' }}
+        run: |
+          cosign sbom download ${{ fromJSON(toJSON(matrix)).destination }}@${{ steps.get-digests.outputs.destination }} > /tmp/sbom-spdx.json
       - name: publish sbom blob as blob
-        if: ${{ steps.determine-type.outputs.typeIsDocker == 'true' }}
         env:
           COSIGN_YES: "true"
           COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
