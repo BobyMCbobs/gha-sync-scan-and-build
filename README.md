@@ -136,6 +136,23 @@ build:
 
 # Tips
 
+## What is an image ref?
+
+IMAGE_REF refers to an image reference in the format of either
+- ghcr.io/somecoolorg/images/hello:latest (just a tag)
+- ghcr.io/somecoolorg/images/hello@sha256:a61743b19423a01827ba68a1ec81a09d04f84bc69848303905ecbc73824fb88b (just a digest)
+- ghcr.io/somecoolorg/images/hello:latest@sha256:a61743b19423a01827ba68a1ec81a09d04f84bc69848303905ecbc73824fb88b (a tag and a digest)
+
+## Obtaining a digest
+
+the digest can be obtained through
+
+```shell
+crane digest IMAGE_REF
+```
+
+to use it, it can be included when an image ref is formatted like the examples above in _What is an image ref?_.
+
 ## Tagging built images
 
 determine the digest of the image, for example given the image is `ghcr.io/somecoolorg/images/hello:latest`
@@ -161,8 +178,21 @@ cosign verify --key cosign.pub IMAGE_REF
 
 ## See the tree of attached signatures and SBOMs
 
+produces a nice and readible tree of signatures, attestations and SBOMs related to the IMAGE_REF
 ```shell
 cosign tree IMAGE_REF
+```
+
+## View the SBOM in the attestation
+
+verify the attestation
+```shell
+cosign verify-attestation --key cosign.pub IMAGE_REF
+```
+
+since SBOMs are the predicate of a signed attestation instead of just uploaded, it requires an extra layer to retrieve their content
+```shell
+cosign verify-attestation --key cosign.pub IMAGE_REF | jq -r .payload | base64 -d | jq -r .predicate.Data
 ```
 
 # Tooling
