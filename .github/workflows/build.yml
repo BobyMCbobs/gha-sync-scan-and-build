@@ -132,7 +132,8 @@ jobs:
         run: |
           DESTINATION_DIGEST="$(crane digest "${DESTINATION}" || true)"
           (
-            echo "${SOURCE_DIGEST} ${DESTINATION_DIGEST}"
+            echo "DESTINATION_DIGEST"
+            echo "${DESTINATION_DIGEST}"
           ) | column -t
           echo "destination=${DESTINATION_DIGEST}" >> $GITHUB_OUTPUT
       - name: Sign image with a key
@@ -151,7 +152,7 @@ jobs:
       - name: download unsigned sbom
         if: ${{ steps.determine-type.outputs.typeIsDocker != 'true' }}
         run: |
-          cosign sbom download ${{ fromJSON(toJSON(matrix)).destination }}@${{ steps.get-digests.outputs.destination }} > /tmp/sbom-spdx.json
+          cosign download sbom ${{ fromJSON(toJSON(matrix)).destination }}@${{ steps.get-digests.outputs.destination }} > /tmp/sbom-spdx.json
       - name: publish sbom blob as blob
         env:
           COSIGN_YES: "true"
