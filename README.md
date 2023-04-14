@@ -195,6 +195,48 @@ since SBOMs are the predicate of a signed attestation instead of just uploaded, 
 cosign verify-attestation --key cosign.pub IMAGE_REF | jq -r .payload | base64 -d | jq -r .predicate.Data
 ```
 
+using [sigs.k8s.io/bom](https://sigs.k8s.io/bom), the SBOM attestation can be visualised
+
+```shell
+🐚 cosign verify-attestation --key cosign.pub IMAGE_REF | jq -r .payload | base64 -d | jq -r .predicate.Data | bom document outline -
+
+Verification for ghcr.io/bobymcbobs/gha-sync-scan-and-build/hello:latest --
+The following checks were performed on each of these signatures:
+  - The cosign claims were validated
+  - Existence of the claims in the transparency log was verified offline
+  - The signatures were verified against the specified public key
+&{Version:SPDX-2.3 DataLicense:CC0-1.0 ID:SPDXRef-DOCUMENT Name:sbom-sha256:e1097a462313187e2a61ba229179efafa8e62bd6166dc94698c9dcffdff05c9c Namespace:https://spdx.org/spdxdocs/apko/ Creator:{Person: Organization:Chainguard, Inc Tool:[apko (v0.7.3-45-g39b16b5)]} Created:1970-01-01 00:00:00 +0000 UTC LicenseListVersion:3.16 Packages:map[SPDXRef-Package-sha256-63bd196f274790f29c3956c9df4a8525aacec14c1c2ecb684cf7462c53f0471f:0xc000314000] Files:map[] ExternalDocRefs:[]}
+PACKAGE:  <nil>
+               _      
+ ___ _ __   __| |_  __
+/ __| '_ \ / _` \ \/ /
+\__ \ |_) | (_| |>  < 
+|___/ .__/ \__,_/_/\_\
+    |_|               
+
+ 📂 SPDX Document sbom-sha256:e1097a462313187e2a61ba229179efafa8e62bd6166dc94698c9dcffdff05c9c
+  │ 
+  │ 📦 DESCRIBES 1 Packages
+  │ 
+  ├ sha256:63bd196f274790f29c3956c9df4a8525aacec14c1c2ecb684cf7462c53f0471f
+  │  │ 🔗 2 Relationships
+  │  ├ CONTAINS PACKAGE sha256:e1097a462313187e2a61ba229179efafa8e62bd6166dc94698c9dcffdff05c9c@unknown
+  │  │  │ 🔗 4 Relationships
+  │  │  ├ CONTAINS PACKAGE alpine-baselayout-data@3.4.0-r0
+  │  │  ├ CONTAINS PACKAGE ca-certificates-bundle@20220614-r4
+  │  │  ├ CONTAINS PACKAGE musl@1.2.3-r4
+  │  │  └ CONTAINS PACKAGE hello@2.12-r0
+  │  │  │  │ 🔗 3 Relationships
+  │  │  │  ├ CONTAINS FILE /usr/bin/hello (/usr/bin/hello)
+  │  │  │  ├ CONTAINS FILE /usr/share/info/hello.info (/usr/share/info/hello.info)
+  │  │  │  └ CONTAINS FILE /usr/share/man/man1/hello.1 (/usr/share/man/man1/hello.1)
+  │  │  │ 
+  │  │ 
+  │  └ GENERATED_FROM PACKAGE github.com/BobyMCbobs/gha-sync-scan-and-build@6d8476f50ccdd7864eb0d46b2036f44516a55336
+  │ 
+  └ 📄 DESCRIBES 0 Files
+```
+
 # Tooling
 
 | Name    | Description                                                                   | Links                                                              | Related/Alternatives                     |
