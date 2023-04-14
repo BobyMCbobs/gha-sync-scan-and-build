@@ -167,6 +167,8 @@ add a new sync image to the sync key like
 
 ## Verifying images
 
+Images are signed using `cosign` with [keyless](https://docs.sigstore.dev/cosign/keyless/).
+
 Images are able to be verified through
 
 ```shell
@@ -174,6 +176,10 @@ cosign verify IMAGE_REF \
   --certificate-identity https://github.com/BobyMCbobs/gha-sync-scan-and-build/.github/workflows/sync.yml@refs/heads/main \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com
 ```
+
+please note: the _certificate identity_ field will vary between
+- https://github.com/BobyMCbobs/gha-sync-scan-and-build/.github/workflows/sync.yml@refs/heads/main
+- https://github.com/BobyMCbobs/gha-sync-scan-and-build/.github/workflows/build.yml@refs/heads/main
 
 ## See the tree of attached signatures and SBOMs
 
