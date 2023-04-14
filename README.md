@@ -171,7 +171,7 @@ Images are able to be verified through
 
 ```shell
 cosign verify IMAGE_REF \
-  --certificate-identity https://github.com/BobyMCbobs/gha-sync-scan-and-build/.github/workflows/build-and-release.yml@refs/heads/main \
+  --certificate-identity https://github.com/BobyMCbobs/gha-sync-scan-and-build/.github/workflows/sync.yml@refs/heads/main \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com
 ```
 
@@ -186,20 +186,20 @@ cosign tree IMAGE_REF
 
 verify the attestation
 ```shell
-cosign verify-attestation IMAGE_REF --certificate-identity https://github.com/BobyMCbobs/gha-sync-scan-and-build/.github/workflows/build-and-release.yml@refs/heads/main \
+cosign verify-attestation IMAGE_REF --certificate-identity https://github.com/BobyMCbobs/gha-sync-scan-and-build/.github/workflows/sync.yml@refs/heads/main \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com
 ```
 
 since SBOMs are the predicate of a signed attestation instead of just uploaded, it requires an extra layer to retrieve their content
 ```shell
-cosign verify-attestation IMAGE_REF --certificate-identity https://github.com/BobyMCbobs/gha-sync-scan-and-build/.github/workflows/build-and-release.yml@refs/heads/main \
+cosign verify-attestation IMAGE_REF --certificate-identity https://github.com/BobyMCbobs/gha-sync-scan-and-build/.github/workflows/sync.yml@refs/heads/main \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com | jq -r .payload | base64 -d | jq -r .predicate.Data
 ```
 
 using [sigs.k8s.io/bom](https://sigs.k8s.io/bom), the SBOM attestation can be visualised
 
 ```shell
-🐚 cosign verify-attestation IMAGE_REF --certificate-identity https://github.com/BobyMCbobs/gha-sync-scan-and-build/.github/workflows/build-and-release.yml@refs/heads/main \
+🐚 cosign verify-attestation IMAGE_REF --certificate-identity https://github.com/BobyMCbobs/gha-sync-scan-and-build/.github/workflows/sync.yml@refs/heads/main \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com | jq -r .payload | base64 -d | jq -r .predicate.Data | bom document outline -
 
 Verification for ghcr.io/bobymcbobs/gha-sync-scan-and-build/hello:latest --
