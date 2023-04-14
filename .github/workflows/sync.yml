@@ -11,6 +11,7 @@ on:
   workflow_dispatch: {}
 
 permissions:
+  id-token: write
   packages: write
 
 jobs:
@@ -83,15 +84,17 @@ jobs:
           HAS_SIGNATURES="$(cosign tree ${DESTINATION}@${DESTINATION_DIGEST} 2>&1 | grep -q 'Signatures for an image tag' && echo true || echo false)"
           echo "destination=${DESTINATION_DIGEST}" >> $GITHUB_OUTPUT
           echo "has-signatures=${HAS_SIGNATURES}" >> $GITHUB_OUTPUT
+      - name: Clean signatures
+        if: ${{ fromJSON(toJSON(matrix)).always == true }}
+        run: |
+          cosign clean -f ${{ fromJSON(toJSON(matrix)).destination }}@${{ steps.get-synced-digests.outputs.destination }}
       - name: Sign image with a key
         if: ${{ steps.get-digests.outputs.source != steps.get-digests.outputs.destination || steps.get-digests .outputs.destination == null || fromJSON(toJSON(matrix)).always == true || steps.get-synced-digests.outputs.has-signatures != 'true' }}
         env:
           COSIGN_EXPERIMENTAL: "true"
           COSIGN_YES: "true"
-          COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
-          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
         run: |
-          cosign sign --key env://COSIGN_PRIVATE_KEY ${{ fromJSON(toJSON(matrix)).destination }}@${{ steps.get-synced-digests.outputs.destination }} -y
+          cosign sign ${{ fromJSON(toJSON(matrix)).destination }}@${{ steps.get-synced-digests.outputs.destination }} -y
       - uses: anchore/sbom-action@v0
         if: ${{ steps.get-digests.outputs.source != steps.get-digests.outputs.destination || steps.get-digests.outputs.destination == null || fromJSON(toJSON(matrix)).always == true || steps.get-synced-digests.outputs.has-signatures != 'true' }}
         with:
@@ -102,7 +105,5 @@ jobs:
         if: ${{ steps.get-digests.outputs.source != steps.get-digests.outputs.destination || steps.get-digests.outputs.destination == null || fromJSON(toJSON(matrix)).always == true || steps.get-synced-digests.outputs.has-signatures != 'true' }}
         env:
           COSIGN_YES: "true"
-          COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
-          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
         run: |
-          cosign attest --predicate /tmp/sbom-spdx.json --key env://COSIGN_PRIVATE_KEY ${{ fromJSON(toJSON(matrix)).destination }}@${{ steps.get-synced-digests.outputs.destination }} -y
+          cosign attest --predicate /tmp/sbom-spdx.json ${{ fromJSON(toJSON(matrix)).destination }}@${{ steps.get-synced-digests.outputs.destination }} -y

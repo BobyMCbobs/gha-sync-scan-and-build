@@ -38,9 +38,6 @@ the structure of the repo is as follows:
 
 1. specify images for syncing and building in the respective _sync_ and _build_ fields
 2. set the image push GitHub secrets of `QUAY_USERNAME` and `QUAY_ROBOT_TOKEN`
-3. generate a signing keypair with `cosign generate-key-pair`
-4. set signing key and password as GitHub secrets with `COSIGN_PRIVATE_KEY` and `COSIGN_PASSWORD` respectively
-5. commit the _cosign.pub_ public key to the repo's root
 
 # Usage
 
@@ -173,7 +170,9 @@ add a new sync image to the sync key like
 Images are able to be verified through
 
 ```shell
-cosign verify --key cosign.pub IMAGE_REF
+cosign verify IMAGE_REF \
+  --certificate-identity https://github.com/BobyMCbobs/gha-sync-scan-and-build/.github/workflows/build-and-release.yml@refs/heads/main \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com
 ```
 
 ## See the tree of attached signatures and SBOMs
@@ -187,18 +186,21 @@ cosign tree IMAGE_REF
 
 verify the attestation
 ```shell
-cosign verify-attestation --key cosign.pub IMAGE_REF
+cosign verify-attestation IMAGE_REF --certificate-identity https://github.com/BobyMCbobs/gha-sync-scan-and-build/.github/workflows/build-and-release.yml@refs/heads/main \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com
 ```
 
 since SBOMs are the predicate of a signed attestation instead of just uploaded, it requires an extra layer to retrieve their content
 ```shell
-cosign verify-attestation --key cosign.pub IMAGE_REF | jq -r .payload | base64 -d | jq -r .predicate.Data
+cosign verify-attestation IMAGE_REF --certificate-identity https://github.com/BobyMCbobs/gha-sync-scan-and-build/.github/workflows/build-and-release.yml@refs/heads/main \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com | jq -r .payload | base64 -d | jq -r .predicate.Data
 ```
 
 using [sigs.k8s.io/bom](https://sigs.k8s.io/bom), the SBOM attestation can be visualised
 
 ```shell
-🐚 cosign verify-attestation --key cosign.pub IMAGE_REF | jq -r .payload | base64 -d | jq -r .predicate.Data | bom document outline -
+🐚 cosign verify-attestation IMAGE_REF --certificate-identity https://github.com/BobyMCbobs/gha-sync-scan-and-build/.github/workflows/build-and-release.yml@refs/heads/main \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com | jq -r .payload | base64 -d | jq -r .predicate.Data | bom document outline -
 
 Verification for ghcr.io/bobymcbobs/gha-sync-scan-and-build/hello:latest --
 The following checks were performed on each of these signatures:

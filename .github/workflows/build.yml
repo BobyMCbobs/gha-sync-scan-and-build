@@ -139,10 +139,8 @@ jobs:
       - name: Sign image with a key
         env:
           COSIGN_YES: "true"
-          COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
-          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
         run: |
-          cosign sign --key env://COSIGN_PRIVATE_KEY ${{ fromJSON(toJSON(matrix)).destination }}@${{ steps.get-digests.outputs.destination }} -y
+          cosign sign ${{ fromJSON(toJSON(matrix)).destination }}@${{ steps.get-digests.outputs.destination }} -y
       - uses: anchore/sbom-action@v0
         if: ${{ steps.determine-type.outputs.typeIsDocker == 'true' }}
         with:
@@ -156,7 +154,5 @@ jobs:
       - name: publish sbom blob as blob
         env:
           COSIGN_YES: "true"
-          COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
-          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
         run: |
-          cosign attest --predicate /tmp/sbom-spdx.json --key env://COSIGN_PRIVATE_KEY ${{ fromJSON(toJSON(matrix)).destination }}@${{ steps.get-digests.outputs.destination }} -y
+          cosign attest --predicate /tmp/sbom-spdx.json ${{ fromJSON(toJSON(matrix)).destination }}@${{ steps.get-digests.outputs.destination }} -y
