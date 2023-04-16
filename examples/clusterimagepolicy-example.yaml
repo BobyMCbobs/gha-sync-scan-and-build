@@ -1,0 +1,12 @@
+apiVersion: policy.sigstore.dev/v1alpha1
+kind: ClusterImagePolicy
+metadata:
+  name: gha-sync-scan-and-build
+spec:
+  images:
+  - glob: "ghcr.io/bobymcbobs/gha-sync-scan-and-build**"
+  authorities:
+  - keyless:
+      identities:
+      - issuer: https://token.actions.githubusercontent.com
+        subjectRegExp: "^(https://github.com/BobyMCbobs/gha-sync-scan-and-build/.github/workflows/(build|sync).yml@refs/(heads/main|tags/v[0-9].[0-9].[0-9]))$"
