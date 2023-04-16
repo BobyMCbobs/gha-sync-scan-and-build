@@ -167,7 +167,9 @@ add a new sync image to the sync key like
 
 ## Verifying images
 
-Images are signed using `cosign` with [keyless](https://docs.sigstore.dev/cosign/keyless/).
+Images are signed using `cosign` with [keyless](https://docs.sigstore.dev/cosign/keyless/), this means that 
+- signatures depend on the build or key infrastructure
+- there's no worry of key rotation
 
 Images are able to be verified through
 
