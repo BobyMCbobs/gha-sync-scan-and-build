@@ -4,12 +4,15 @@
 name: scan
 
 on:
-  push: {}
+  push:
+    branches:
+      - main
   schedule:
     - cron: "0 0 * * MON"
   workflow_dispatch: {}
 
 permissions:
+  contents: read
   security-events: write
 
 jobs:
@@ -18,14 +21,14 @@ jobs:
     outputs:
       matrix: ${{ steps.set.outputs.matrix }}
     steps:
-      - uses: actions/checkout@v3
-      - uses: mikefarah/yq@master
+      - uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
+      - uses: mikefarah/yq@bbe305500687a5fe8498d74883c17f0f06431ac4 # master
       - id: set
         run: |
           echo "matrix=$(jq -r -c '.sync as $sync | .build as $build | [{"destination": $sync[].destination}, {"destination": $build[].destination}]'  <<< "$(yq e . -o json config.yaml)")" >> $GITHUB_OUTPUT
       - name: check output
         run: |
-          jq . <<< '${{ steps.prepare.outputs.matrix }}'
+          jq . <<< '${{ steps.set.outputs.matrix }}'
   scan:
     if: ${{ fromJSON(needs.prepare.outputs.matrix) != null }}
     needs: prepare
@@ -34,15 +37,15 @@ jobs:
       matrix:
         include: ${{ fromJSON(needs.prepare.outputs.matrix) }}
     steps:
-      - uses: actions/checkout@v3
-      - uses: imjasonh/setup-crane@v0.1
+      - uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
+      - uses: imjasonh/setup-crane@00c9e93efa4e1138c9a7a5c594acd6c75a2fbf0c # main
       - name: quay crane login
         env:
           quay-robot-token: ${{ secrets.QUAY_ROBOT_TOKEN }}
           quay-username: ${{ secrets.QUAY_USERNAME }}
         if: ${{ env.quay-robot-token != null && env.quay-username != null }}
         run: |
-          echo "${{ env.quay-robot-token }}" | crane auth login --password-stdin quay.io ${{ env.quay-username }}
+          echo "${{ env.quay-robot-token }}" | crane auth login quay.io --username ${{ env.quay-username }} --password-stdin
       - name: get-digests
         id: get-digests
         env:
@@ -56,7 +59,7 @@ jobs:
           echo "destination=${DESTINATION_DIGEST}" >> $GITHUB_OUTPUT
       - name: Run Trivy vulnerability scanner
         if: ${{ steps.get-digests.outputs.destination != null }}
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@e5f43133f6e8736992c9f3c1b3296e24b37e17f2 # 0.10.0
         with:
           image-ref: '${{ fromJSON(toJSON(matrix)).destination }}'
           format: 'sarif'
@@ -67,7 +70,7 @@ jobs:
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
       - name: Upload Trivy scan results to GitHub Security tab
-        if: ${{ steps.get-digests .outputs.destination != null }}
-        uses: github/codeql-action/upload-sarif@v2
+        if: ${{ steps.get-digests.outputs.destination != null }}
+        uses: github/codeql-action/upload-sarif@f31a31c052207cc13b328d6295c5b728bb49568c # codeql-bundle-20230428
         with:
           sarif_file: 'trivy-results.sarif'
