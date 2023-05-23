@@ -5,29 +5,32 @@
 name: sync
 
 on:
-  push: {}
+  push:
+    branches:
+      - main
   schedule:
     - cron: "0 0 * * MON"
   workflow_dispatch: {}
 
 permissions:
+  contents: read
   id-token: write
   packages: write
-
+  security-events: write
 jobs:
   prepare:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set.outputs.matrix }}
     steps:
-      - uses: actions/checkout@v3
-      - uses: mikefarah/yq@master
+      - uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
+      - uses: mikefarah/yq@bbe305500687a5fe8498d74883c17f0f06431ac4 # master
       - id: set
         run: |
           echo "matrix=$(jq '.sync' -r -c <<< "$(yq e . -o json config.yaml)")" >> $GITHUB_OUTPUT
       - name: check output
         run: |
-          jq . <<< '${{ steps.prepare.outputs.matrix }}'
+          jq . <<< '${{ steps.set.outputs.matrix }}'
   sync:
     if: ${{ fromJSON(needs.prepare.outputs.matrix) != null }}
     needs: prepare
@@ -39,17 +42,17 @@ jobs:
       matrix:
         include: ${{ fromJSON(needs.prepare.outputs.matrix) }}
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-go@v4
-      - uses: imjasonh/setup-crane@v0.1
-      - uses: sigstore/cosign-installer@main
+      - uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
+      - uses: actions/setup-go@fac708d6674e30b6ba41289acaab6d4b75aa0753 # v4.0.1
+      - uses: imjasonh/setup-crane@00c9e93efa4e1138c9a7a5c594acd6c75a2fbf0c # main
+      - uses: sigstore/cosign-installer@dd6b2e2b610a11fd73dd187a43d57cc1394e35f9 # v3.0.5
       - name: quay crane login
         env:
           quay-robot-token: ${{ secrets.QUAY_ROBOT_TOKEN }}
           quay-username: ${{ secrets.QUAY_USERNAME }}
         if: ${{ env.quay-robot-token != null && env.quay-username != null }}
         run: |
-          echo "${{ env.quay-robot-token }}" | crane auth login --password-stdin quay.io ${{ env.quay-username }}
+          echo "${{ env.quay-robot-token }}" | crane auth login quay.io --username ${{ env.quay-username }} --password-stdin
       - name: get-digests
         if: ${{ fromJSON(toJSON(matrix)).always != true }}
         id: get-digests
@@ -72,6 +75,18 @@ jobs:
           DESTINATION: ${{ fromJSON(toJSON(matrix)).destination }}
         run: |
           crane cp $SOURCE $DESTINATION
+      - name: add source labels
+        if: ${{ steps.get-digests.outputs.source != steps.get-digests.outputs.destination || steps.get-digests.outputs.destination == null || fromJSON(toJSON(matrix)).always == true }}
+        env:
+          DESTINATION: ${{ fromJSON(toJSON(matrix)).destination }}
+        run: |
+          LABELS=(
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.source=${{ github.repositoryUrl }}
+          )
+          for LABEL in "${LABELS[@]}"; do
+            crane mutate $DESTINATION --label "${LABEL}"
+          done
       - name: get-synced-digests
         id: get-synced-digests
         env:
@@ -89,13 +104,13 @@ jobs:
         run: |
           cosign clean -f ${{ fromJSON(toJSON(matrix)).destination }}@${{ steps.get-synced-digests.outputs.destination }}
       - name: Sign image with a key
-        if: ${{ steps.get-digests.outputs.source != steps.get-digests.outputs.destination || steps.get-digests .outputs.destination == null || fromJSON(toJSON(matrix)).always == true || steps.get-synced-digests.outputs.has-signatures != 'true' }}
+        if: ${{ steps.get-digests.outputs.source != steps.get-digests.outputs.destination || steps.get-digests.outputs.destination == null || fromJSON(toJSON(matrix)).always == true || steps.get-synced-digests.outputs.has-signatures != 'true' }}
         env:
           COSIGN_EXPERIMENTAL: "true"
           COSIGN_YES: "true"
         run: |
           cosign sign ${{ fromJSON(toJSON(matrix)).destination }}@${{ steps.get-synced-digests.outputs.destination }} -y
-      - uses: anchore/sbom-action@v0
+      - uses: anchore/sbom-action@4d571ad1038a9cc29d676154ef265ab8f9027042 # v0.14.2
         if: ${{ steps.get-digests.outputs.source != steps.get-digests.outputs.destination || steps.get-digests.outputs.destination == null || fromJSON(toJSON(matrix)).always == true || steps.get-synced-digests.outputs.has-signatures != 'true' }}
         with:
           image: ${{ fromJSON(toJSON(matrix)).destination }}@${{ steps.get-synced-digests.outputs.destination }}
